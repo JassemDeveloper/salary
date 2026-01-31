@@ -117,42 +117,62 @@ document.getElementById("checkBtn").onclick=()=>{
   const grade = document.getElementById("grade").value;
   const enteredSalary = Number(document.getElementById("salary").value);
 
-  if(!grade || !Number.isFinite(enteredSalary) || enteredSalary <= 0){
-    return show("warning", "Enter a valid salary and select a grade.");
+  if(!grade || !Number.isFinite(enteredSalary) || enteredSalary < 0){
+    return show("warning", "Enter a valid salary (>= 0) and select a grade.");
   }
 
   const band = salaryBands[grade];
-  if (enteredSalary < band.min){
-    return show("danger", `Salary <strong>${fmt(enteredSalary)}</strong> is below grade minimum <strong>${fmt(band.min)}</strong>.`);
+  const range = band.max - band.min;
+
+  // Cap at max if exceeded (for quarter lookup + "needed to max" = 0)
+  const capped = enteredSalary > band.max;
+  const effectiveSalary = capped ? band.max : enteredSalary;
+
+  // Quarter index:
+  // - below min => idx = -1 (special state)
+  // - otherwise find quarter normally
+  let idx = -1;
+  let currentName = "Below Minimum";
+  if (effectiveSalary >= band.min){
+    idx = band.quarters.findIndex(q => effectiveSalary >= q.min && effectiveSalary <= q.max);
+    currentName = band.quarters[idx].name;
   }
 
-  // ✅ Cap at max if exceeded
-  const capped = enteredSalary > band.max;
-  const salary = capped ? band.max : enteredSalary;
+  // Build quarter progression badges (Passed / Current / Not Reached Yet)
+  const passed = (idx <= 0)
+    ? badge("None", "secondary")
+    : band.quarters.slice(0, idx).map(q => badge(q.name, "success")).join("");
 
-  const idx = band.quarters.findIndex(q => salary >= q.min && salary <= q.max);
-  const current = band.quarters[idx];
+  const currentBadge = badge(
+    currentName + (capped ? " (Capped at Max)" : " (Current)"),
+    idx === -1 ? "warning" : "primary"
+  );
 
-  const passed = band.quarters.slice(0, idx).map(q => badge(q.name, "success")).join("") || badge("None", "secondary");
-  const currentBadge = badge(current.name + " (Current)", "primary");
-  const upcoming = band.quarters.slice(idx+1).map(q => badge(q.name, "secondary")).join("") || badge("None — Max reached", "dark");
+  const upcoming = (idx === -1)
+    ? band.quarters.map(q => badge(q.name, "secondary")).join("")
+    : (band.quarters.slice(idx+1).map(q => badge(q.name, "secondary")).join("") || badge("None — Max reached", "dark"));
 
-  // Increase from min
-  const increaseFromMin = salary - band.min;
+  // Increase from min (amount can be negative if below min)
+  const increaseFromMin = enteredSalary - band.min;
 
-  // ✅ Percent from min should be 100% when salary == max (or exceeded -> capped to max)
-  const percentFromMin = (salary >= band.max)
+  // Progress % from min across the grade range:
+  // - 0% at min
+  // - 100% at max or above
+  // - negative if below min
+  const percentFromMin = (enteredSalary >= band.max)
     ? 100
-    : ((increaseFromMin / (band.max - band.min)) * 100);
+    : ((enteredSalary - band.min) / range) * 100;
 
-  // Increase needed to max
-  const neededToMax = band.max - salary;
-  const percentToMax = (salary >= band.max)
+  // Needed to max (never negative)
+  const neededToMax = Math.max(0, band.max - enteredSalary);
+
+  // Needed-to-max % (of grade range)
+  const percentToMax = (enteredSalary >= band.max)
     ? 0
-    : ((neededToMax / (band.max - band.min)) * 100);
+    : (neededToMax / range) * 100;
 
   show("success", `
-    ${capped ? `<div class="mb-2 text-warning"><strong>Note:</strong> Entered salary exceeds the grade maximum. Calculations use the maximum (${fmt(band.max)}).</div>` : ""}
+    ${capped ? `<div class="mb-2 text-warning"><strong>Note:</strong> Entered salary exceeds the grade maximum. Calculations use the maximum (${fmt(band.max)}) for quarter lookup.</div>` : ""}
 
     <strong>Quarter Progression</strong><br><br>
 
@@ -162,10 +182,10 @@ document.getElementById("checkBtn").onclick=()=>{
 
     <hr class="my-2">
 
-    <strong>Increase from Min:</strong> ${fmt(increaseFromMin)} 
+    <strong>Increase from Min:</strong> ${fmt(increaseFromMin)}
     (<strong>${percentFromMin.toFixed(2)}%</strong> of the grade range)<br>
 
-    <strong>Increase Needed to Reach Max:</strong> ${fmt(neededToMax)} 
+    <strong>Increase Needed to Reach Max:</strong> ${fmt(neededToMax)}
     (<strong>${percentToMax.toFixed(2)}%</strong> of the grade range)
   `);
 };
