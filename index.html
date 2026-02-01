@@ -137,14 +137,7 @@
                 </div>
               </div>
 
-              <div class="form-text mt-2">
-                Rules:
-                If salary &gt; current grade max → stops.
-                Increases rounded to end with 0 or 5.
-                If total exceeds max (current or next grade), salary caps to max and remainder is Lump Sum.
-                Quarter after increase is evaluated on post-grade (next grade if promotion).
-              </div>
-
+            
               <hr class="my-4">
               <div id="incResult" class="alert d-none"></div>
 
@@ -216,7 +209,10 @@
                   <label class="form-label">Salary</label>
                   <input id="saipSalary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
                 </div>
-
+         <div class="col-md-2">
+                  <label class="form-label">Company Factor</label>
+                  <input id="saipCompanyFactor" type="number" class="form-control" placeholder="e.g., 1.0" min="0" step="0.01" value="1">
+                </div>
                 <div class="col-md-2">
                   <label class="form-label">Rating</label>
                   <select id="saipRating" class="form-select">
@@ -237,22 +233,14 @@
                   </select>
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Company Factor</label>
-                  <input id="saipCompanyFactor" type="number" class="form-control" placeholder="e.g., 1.0" min="0" step="0.01" value="1">
-                </div>
+       
 
                 <div class="col-md-12 d-grid mt-2">
                   <button id="saipCalcBtn" class="btn btn-dark">Calculate SAIP</button>
                 </div>
               </div>
 
-              <div class="form-text mt-2">
-                SAIP Formula used here: <strong>Bonus = Salary × GradeFactor × RatingFactor × CompanyFactor</strong>.<br>
-                For Rating <strong>D</strong>: bonus = 0 unless <strong>Protected</strong>.
-                If Protected and the calculated bonus is below the protected minimum (after CompanyFactor),
-                we pay the protected minimum.
-              </div>
+       
 
               <hr class="my-4">
               <div id="saipResult" class="alert d-none"></div>
