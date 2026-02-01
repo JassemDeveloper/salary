@@ -3,64 +3,320 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Salary Quarter Checker</title>
+  <title>Salary Tools</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-10">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h1 class="h4 mb-3">Salary Quarter Checker</h1>
+          <h1 class="h4 mb-3">Salary Tools</h1>
 
-          <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-              <label class="form-label">Grade (GC)</label>
-              <select id="grade" class="form-select">
-                <option value="" selected disabled>Select grade</option>
-                <option>6</option><option>7</option><option>8</option>
-                <option>9</option><option>10</option><option>11</option>
-                <option>12</option><option>13</option><option>14</option>
-                <option>15</option><option>16</option><option>17</option>
-              </select>
+          <!-- Tabs -->
+          <ul class="nav nav-tabs" id="salaryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="checker-tab" data-bs-toggle="tab" data-bs-target="#checker"
+                      type="button" role="tab" aria-controls="checker" aria-selected="true">
+                Quarter Checker
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="increase-tab" data-bs-toggle="tab" data-bs-target="#increase"
+                      type="button" role="tab" aria-controls="increase" aria-selected="false">
+                Annual Increase
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="saip-tab" data-bs-toggle="tab" data-bs-target="#saip"
+                      type="button" role="tab" aria-controls="saip" aria-selected="false">
+                SAIP
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content pt-4" id="salaryTabsContent">
+
+            <!-- TAB 1: Quarter Checker -->
+            <div class="tab-pane fade show active" id="checker" role="tabpanel" aria-labelledby="checker-tab">
+              <h2 class="h5 mb-3">Salary Quarter Checker</h2>
+
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label">Grade (GC)</label>
+                  <select id="grade" class="form-select">
+                    <option value="" selected disabled>Select grade</option>
+                    <option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option><option>11</option>
+                    <option>12</option><option>13</option><option>14</option>
+                    <option>15</option><option>16</option><option>17</option>
+                  </select>
+                </div>
+
+                <div class="col-md-5">
+                  <label class="form-label">Salary</label>
+                  <input id="salary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                </div>
+
+                <div class="col-md-3 d-grid">
+                  <button id="checkBtn" class="btn btn-primary">Check</button>
+                </div>
+              </div>
+
+              <hr class="my-4">
+              <div id="result" class="alert d-none"></div>
+
+              <button class="btn btn-outline-secondary btn-sm mt-3"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#salaryTable">
+                Show Salary Table
+              </button>
+
+              <div id="salaryTable" class="collapse mt-3">
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped align-middle">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>GC</th>
+                        <th>0–25%</th>
+                        <th>25–50%</th>
+                        <th>50–75%</th>
+                        <th>75–100%</th>
+                      </tr>
+                    </thead>
+                    <tbody id="salaryTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
 
-            <div class="col-md-5">
-              <label class="form-label">Salary</label>
-              <input id="salary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+            <!-- TAB 2: Annual Increase + Promotion -->
+            <div class="tab-pane fade" id="increase" role="tabpanel" aria-labelledby="increase-tab">
+              <h2 class="h5 mb-3">Annual Increase Calculator</h2>
+
+              <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                  <label class="form-label">Grade (GC)</label>
+                  <select id="incGrade" class="form-select">
+                    <option value="" selected disabled>Select grade</option>
+                    <option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option><option>11</option>
+                    <option>12</option><option>13</option><option>14</option>
+                    <option>15</option><option>16</option><option>17</option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Current Salary</label>
+                  <input id="incSalary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                </div>
+
+                <div class="col-md-2">
+                  <label class="form-label">Performance Rating</label>
+                  <select id="incRating" class="form-select">
+                    <option value="" selected disabled>Select rating</option>
+                    <option value="S">S</option>
+                    <option value="E+">E+</option>
+                    <option value="E">E</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="col-md-2">
+                  <label class="form-label">Promotion?</label>
+                  <select id="incPromotion" class="form-select">
+                    <option value="no" selected>No</option>
+                    <option value="yes">Yes</option>
+                  </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                  <button id="calcIncreaseBtn" class="btn btn-success">Calculate</button>
+                </div>
+              </div>
+
+              <div class="form-text mt-2">
+                Rules:
+                If salary &gt; current grade max → stops.
+                Increases rounded to end with 0 or 5.
+                If total exceeds max (current or next grade), salary caps to max and remainder is Lump Sum.
+                Quarter after increase is evaluated on post-grade (next grade if promotion).
+              </div>
+
+              <hr class="my-4">
+              <div id="incResult" class="alert d-none"></div>
+
+              <button class="btn btn-outline-secondary btn-sm mt-3"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#increaseTable">
+                Show Annual Increase % Table
+              </button>
+
+              <div id="increaseTable" class="collapse mt-3">
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped align-middle">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Rating</th>
+                        <th>Quarter 1</th>
+                        <th>Quarter 2</th>
+                        <th>Quarter 3</th>
+                        <th>Quarter 4</th>
+                      </tr>
+                    </thead>
+                    <tbody id="increaseTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <button class="btn btn-outline-secondary btn-sm mt-3"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#promoTable">
+                Show Promotion % Table
+              </button>
+
+              <div id="promoTable" class="collapse mt-3">
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped align-middle">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Type</th>
+                        <th>Quarter 1</th>
+                        <th>Quarter 2</th>
+                        <th>Quarter 3</th>
+                        <th>Quarter 4</th>
+                      </tr>
+                    </thead>
+                    <tbody id="promoTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
 
-            <div class="col-md-3 d-grid">
-              <button id="checkBtn" class="btn btn-primary">Check</button>
-            </div>
-          </div>
+            <!-- TAB 3: SAIP -->
+            <div class="tab-pane fade" id="saip" role="tabpanel" aria-labelledby="saip-tab">
+              <h2 class="h5 mb-3">SAIP Bonus Calculator</h2>
 
-          <hr class="my-4">
-          <div id="result" class="alert d-none"></div>
+              <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                  <label class="form-label">Grade (GC)</label>
+                  <select id="saipGrade" class="form-select">
+                    <option value="" selected disabled>Select grade</option>
+                    <option>3</option><option>4</option><option>5</option>
+                    <option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option><option>11</option>
+                    <option>12</option><option>13</option><option>14</option>
+                    <option>15</option><option>16</option><option>17</option>
+                  </select>
+                </div>
 
-          <button class="btn btn-outline-secondary btn-sm mt-3"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#salaryTable">
-            Show Salary Table
-          </button>
+                <div class="col-md-4">
+                  <label class="form-label">Salary</label>
+                  <input id="saipSalary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                </div>
 
-          <div id="salaryTable" class="collapse mt-3">
-            <div class="table-responsive">
-              <table class="table table-sm table-striped align-middle">
-                <thead class="table-dark">
-                  <tr>
-                    <th>GC</th>
-                    <th>0–25%</th>
-                    <th>25–50%</th>
-                    <th>50–75%</th>
-                    <th>75–100%</th>
-                  </tr>
-                </thead>
-                <tbody id="salaryTableBody"></tbody>
-              </table>
-            </div>
-          </div>
+                <div class="col-md-2">
+                  <label class="form-label">Rating</label>
+                  <select id="saipRating" class="form-select">
+                    <option value="" selected disabled>Select rating</option>
+                    <option value="S">S</option>
+                    <option value="E+">E+</option>
+                    <option value="E">E</option>
+                    <option value="M">M</option>
+                    <option value="D">D</option>
+                  </select>
+                </div>
+
+                <div class="col-md-2">
+                  <label class="form-label">Protected?</label>
+                  <select id="saipProtected" class="form-select">
+                    <option value="no" selected>No</option>
+                    <option value="yes">Yes</option>
+                  </select>
+                </div>
+
+                <div class="col-md-2">
+                  <label class="form-label">Company Factor</label>
+                  <input id="saipCompanyFactor" type="number" class="form-control" placeholder="e.g., 1.0" min="0" step="0.01" value="1">
+                </div>
+
+                <div class="col-md-12 d-grid mt-2">
+                  <button id="saipCalcBtn" class="btn btn-dark">Calculate SAIP</button>
+                </div>
+              </div>
+
+              <div class="form-text mt-2">
+                SAIP Formula used here: <strong>Bonus = Salary × GradeFactor × RatingFactor × CompanyFactor</strong>.<br>
+                For Rating <strong>D</strong>: bonus = 0 unless <strong>Protected</strong>.
+                If Protected and the calculated bonus is below the protected minimum (after CompanyFactor),
+                we pay the protected minimum.
+              </div>
+
+              <hr class="my-4">
+              <div id="saipResult" class="alert d-none"></div>
+
+              <button class="btn btn-outline-secondary btn-sm mt-3"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#saipTables">
+                Show SAIP Factors
+              </button>
+
+              <div id="saipTables" class="collapse mt-3">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="table-responsive">
+                      <table class="table table-sm table-striped align-middle">
+                        <thead class="table-dark">
+                          <tr><th>Grade Band</th><th>GradeFactor</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr><td>GC 6–10</td><td>1.5</td></tr>
+                          <tr><td>GC 11–14</td><td>1.8</td></tr>
+                          <tr><td>GC 15+</td><td>2.4</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="table-responsive">
+                      <table class="table table-sm table-striped align-middle">
+                        <thead class="table-dark">
+                          <tr><th>Rating</th><th>RatingFactor</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr><td>S</td><td>1.5</td></tr>
+                          <tr><td>E+</td><td>1.25</td></tr>
+                          <tr><td>E</td><td>1.0</td></tr>
+                          <tr><td>M</td><td>0.75</td></tr>
+                          <tr><td>D</td><td>0 (unless Protected floor applies)</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                      <table class="table table-sm table-striped align-middle">
+                        <thead class="table-dark">
+                          <tr><th>Protected Floor (only when Rating=D & Protected=Yes)</th><th>Factor</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr><td>GC 3–10</td><td>1.0</td></tr>
+                          <tr><td>GC 11–14</td><td>1.6</td></tr>
+                          <tr><td>GC 15+</td><td>2.0</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div><!-- /saip tab -->
+
+          </div><!-- /tab-content -->
 
         </div>
       </div>
@@ -71,6 +327,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+/* =========================
+   DATA
+========================= */
+
 const salaryBands = {
   6:{min:6695,max:12700,quarters:[{name:"1st Quarter",min:6695,max:8196},{name:"2nd Quarter",min:8197,max:9698},{name:"3rd Quarter",min:9699,max:11199},{name:"4th Quarter",min:11200,max:12700}]},
   7:{min:7695,max:14615,quarters:[{name:"1st Quarter",min:7695,max:9425},{name:"2nd Quarter",min:9426,max:11155},{name:"3rd Quarter",min:11156,max:12885},{name:"4th Quarter",min:12886,max:14615}]},
@@ -86,11 +346,59 @@ const salaryBands = {
   17:{min:42405,max:87385,quarters:[{name:"1st Quarter",min:42405,max:53650},{name:"2nd Quarter",min:53651,max:64895},{name:"3rd Quarter",min:64896,max:76140},{name:"4th Quarter",min:76141,max:87385}]}
 };
 
-const fmt=n=>n.toLocaleString("en-US");
+// Annual increase percent table (Rating x Quarter)
+const increaseRates = {
+  "S":  { q1: 0.087, q2: 0.073, q3: 0.054, q4: 0.032 },
+  "E+": { q1: 0.073, q2: 0.062, q3: 0.046, q4: 0.036 },
+  "E":  { q1: 0.054, q2: 0.045, q3: 0.033, q4: 0.019 },
+  "M":  { q1: 0.033, q2: 0.027, q3: 0.016, q4: 0.009 }
+};
 
-// Render salary table
+// Promotion (grade increase) rates by quarter: Q1 9%, Q2 7%, Q3 5%, Q4 5%
+const promotionRates = { q1: 0.09, q2: 0.07, q3: 0.05, q4: 0.05 };
+
+/* =========================
+   HELPERS
+========================= */
+
+const fmt = n => Number(n).toLocaleString("en-US");
+const fmtPct = x => (x * 100).toFixed(1) + "%";
+
+// round so result ends with 0 or 5 (nearest multiple of 5)
+const roundTo5 = n => Math.round(n / 5) * 5;
+
+function badge(text,type){
+  return `<span class="badge bg-${type} me-1 mb-1">${text}</span>`;
+}
+
+function show(elId, type, html){
+  const r = document.getElementById(elId);
+  r.className = `alert alert-${type}`;
+  r.innerHTML = html;
+  r.classList.remove("d-none");
+}
+
+// Detect quarter by grade+salary
+function detectQuarter(gradeStr, enteredSalary){
+  const band = salaryBands[gradeStr];
+  if(!band) return { ok:false, error:"Invalid grade." };
+
+  if (enteredSalary < band.min){
+    return { ok:false, band, quarterIndex:-1, quarterName:"Below Minimum" };
+  }
+
+  const idx = band.quarters.findIndex(q => enteredSalary >= q.min && enteredSalary <= q.max);
+  const quarterName = band.quarters[idx]?.name ?? "Unknown";
+  return { ok:true, band, quarterIndex: idx, quarterName };
+}
+
+/* =========================
+   RENDER TABLES
+========================= */
+
+// Salary table (TAB1)
 Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
-  const q=salaryBands[gc].quarters;
+  const q = salaryBands[gc].quarters;
   document.getElementById("salaryTableBody").innerHTML += `
     <tr>
       <td>${gc}</td>
@@ -102,35 +410,50 @@ Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
   `;
 });
 
-function badge(text,type){
-  return `<span class="badge bg-${type} me-1 mb-1">${text}</span>`;
-}
+// Annual increase table (TAB2)
+["S","E+","E","M"].forEach(key=>{
+  const r = increaseRates[key];
+  document.getElementById("increaseTableBody").innerHTML += `
+    <tr>
+      <td>${key}</td>
+      <td>${fmtPct(r.q1)}</td>
+      <td>${fmtPct(r.q2)}</td>
+      <td>${fmtPct(r.q3)}</td>
+      <td>${fmtPct(r.q4)}</td>
+    </tr>
+  `;
+});
 
-function show(type, html){
-  const r=document.getElementById("result");
-  r.className = `alert alert-${type}`;
-  r.innerHTML = html;
-  r.classList.remove("d-none");
-}
+// Promotion rates table (TAB2)
+document.getElementById("promoTableBody").innerHTML = `
+  <tr>
+    <td>Promotion</td>
+    <td>${fmtPct(promotionRates.q1)}</td>
+    <td>${fmtPct(promotionRates.q2)}</td>
+    <td>${fmtPct(promotionRates.q3)}</td>
+    <td>${fmtPct(promotionRates.q4)}</td>
+  </tr>
+`;
+
+/* =========================
+   TAB 1: QUARTER CHECKER
+========================= */
 
 document.getElementById("checkBtn").onclick=()=>{
   const grade = document.getElementById("grade").value;
   const enteredSalary = Number(document.getElementById("salary").value);
 
   if(!grade || !Number.isFinite(enteredSalary) || enteredSalary < 0){
-    return show("warning", "Enter a valid salary (>= 0) and select a grade.");
+    return show("result","warning", "Enter a valid salary (>= 0) and select a grade.");
   }
 
   const band = salaryBands[grade];
   const range = band.max - band.min;
 
-  // Cap at max if exceeded (for quarter lookup + "needed to max" = 0)
+  // Cap at max for quarter lookup + needed to max = 0
   const capped = enteredSalary > band.max;
   const effectiveSalary = capped ? band.max : enteredSalary;
 
-  // Quarter index:
-  // - below min => idx = -1 (special state)
-  // - otherwise find quarter normally
   let idx = -1;
   let currentName = "Below Minimum";
   if (effectiveSalary >= band.min){
@@ -138,7 +461,6 @@ document.getElementById("checkBtn").onclick=()=>{
     currentName = band.quarters[idx].name;
   }
 
-  // Build quarter progression badges (Passed / Current / Not Reached Yet)
   const passed = (idx <= 0)
     ? badge("None", "secondary")
     : band.quarters.slice(0, idx).map(q => badge(q.name, "success")).join("");
@@ -152,26 +474,19 @@ document.getElementById("checkBtn").onclick=()=>{
     ? band.quarters.map(q => badge(q.name, "secondary")).join("")
     : (band.quarters.slice(idx+1).map(q => badge(q.name, "secondary")).join("") || badge("None — Max reached", "dark"));
 
-  // Increase from min (amount can be negative if below min)
   const increaseFromMin = enteredSalary - band.min;
 
-  // Progress % from min across the grade range:
-  // - 0% at min
-  // - 100% at max or above
-  // - negative if below min
   const percentFromMin = (enteredSalary >= band.max)
     ? 100
     : ((enteredSalary - band.min) / range) * 100;
 
-  // Needed to max (never negative)
   const neededToMax = Math.max(0, band.max - enteredSalary);
 
-  // Needed-to-max % (of grade range)
   const percentToMax = (enteredSalary >= band.max)
     ? 0
     : (neededToMax / range) * 100;
 
-  show("success", `
+  show("result","success", `
     ${capped ? `<div class="mb-2 text-warning"><strong>Note:</strong> Entered salary exceeds the grade maximum. Calculations use the maximum (${fmt(band.max)}) for quarter lookup.</div>` : ""}
 
     <strong>Quarter Progression</strong><br><br>
@@ -187,6 +502,307 @@ document.getElementById("checkBtn").onclick=()=>{
 
     <strong>Increase Needed to Reach Max:</strong> ${fmt(neededToMax)}
     (<strong>${percentToMax.toFixed(2)}%</strong> of the grade range)
+  `);
+};
+
+/* =========================
+   TAB 2: ANNUAL INCREASE + PROMOTION
+========================= */
+
+document.getElementById("calcIncreaseBtn").onclick=()=>{
+  const gradeStr = document.getElementById("incGrade").value;
+  const grade = Number(gradeStr);
+  const salary = Number(document.getElementById("incSalary").value);
+  const rating = document.getElementById("incRating").value;
+  const promotion = document.getElementById("incPromotion").value; // "yes" | "no"
+
+  if(!gradeStr || !Number.isFinite(salary) || salary < 0 || !rating){
+    return show("incResult","warning","Enter a valid salary (>= 0), select grade and rating.");
+  }
+
+  const currentBand = salaryBands[String(grade)];
+  if(!currentBand){
+    return show("incResult","danger","Invalid grade.");
+  }
+
+  // Stop if salary > current grade max
+  if(salary > currentBand.max){
+    return show("incResult","danger", `
+      <strong>Not allowed:</strong> Salary is above the current grade maximum.<br>
+      Grade ${grade} max is <strong>${fmt(currentBand.max)}</strong>, entered salary is <strong>${fmt(salary)}</strong>.
+    `);
+  }
+
+  // Detect quarter BEFORE any increase (based on current grade)
+  const qBefore = detectQuarter(String(grade), salary);
+  if(!qBefore.ok){
+    return show("incResult","danger", `
+      <strong>Not allowed:</strong> Salary is below the current grade minimum.<br>
+      Grade ${grade} min is <strong>${fmt(currentBand.min)}</strong>, entered salary is <strong>${fmt(salary)}</strong>.
+    `);
+  }
+
+  const quarterKey = ["q1","q2","q3","q4"][qBefore.quarterIndex];
+
+  // Annual increase (rounded to 0/5)
+  const annualRate = increaseRates[rating]?.[quarterKey];
+  if(annualRate == null){
+    return show("incResult","danger","Annual increase rate not found for the selected rating/quarter.");
+  }
+  const annualRaw = salary * annualRate;
+  const annualRounded = roundTo5(annualRaw);
+
+  // Promotion increase (optional) (rounded to 0/5)
+  let promoRate = 0, promoRaw = 0, promoRounded = 0;
+  let newGrade = grade;                 // default: no promotion
+  let capBand = currentBand;            // default: cap on current grade
+
+  if(promotion === "yes"){
+    newGrade = grade + 1;
+    const nextBand = salaryBands[String(newGrade)];
+    if(!nextBand){
+      return show("incResult","danger", `
+        <strong>Promotion not possible:</strong> Next grade (GC ${newGrade}) not found in salary bands.
+      `);
+    }
+
+    promoRate = promotionRates[quarterKey] ?? 0;
+    promoRaw = salary * promoRate;
+    promoRounded = roundTo5(promoRaw);
+
+    capBand = nextBand; // cap moves to NEW grade max
+  }
+
+  // Total desired increase = promotion + annual (sum after rounding each part)
+  const totalRounded = promoRounded + annualRounded;
+
+  // Cap to max of capBand
+  const headroomToMax = capBand.max - salary;
+  const appliedIncrease = Math.min(totalRounded, headroomToMax);
+  const newSalary = salary + appliedIncrease;
+  const remainingLumpSum = Math.max(0, totalRounded - appliedIncrease);
+
+  // Quarter after increase based on post-grade
+  const qAfter = detectQuarter(String(newGrade), newSalary);
+
+  // Quarter ranges
+  const beforeRange = currentBand.quarters[qBefore.quarterIndex];
+  const beforeRangeText = `${fmt(beforeRange.min)} – ${fmt(beforeRange.max)}`;
+
+  let afterRangeText = "N/A";
+  let afterQuarterName = "Unknown";
+  let movedText = "";
+
+  if(qAfter.ok){
+    afterQuarterName = qAfter.quarterName;
+    const afterBand = salaryBands[String(newGrade)];
+    const afterRange = afterBand.quarters[qAfter.quarterIndex];
+    afterRangeText = `${fmt(afterRange.min)} – ${fmt(afterRange.max)}`;
+
+    if(promotion === "yes"){
+      movedText = `<span class="text-primary">— Re-evaluated on new grade (GC ${newGrade})</span>`;
+    } else {
+      movedText = (qAfter.quarterIndex === qBefore.quarterIndex)
+        ? `<span class="text-success">— Still the same quarter</span>`
+        : `<span class="text-primary">— Moved to a new quarter</span>`;
+    }
+  }
+
+  // Grade progress % and remaining-to-max (based on capBand)
+  const range = capBand.max - capBand.min;
+  const clamp01 = x => Math.min(1, Math.max(0, x));
+
+  const progressBefore = clamp01((salary - capBand.min) / range) * 100;
+  const progressAfter  = clamp01((newSalary - capBand.min) / range) * 100;
+  const progressDelta  = progressAfter - progressBefore;
+
+  const remainingBefore = Math.max(0, capBand.max - salary);
+  const remainingAfter  = Math.max(0, capBand.max - newSalary);
+  const remainingDelta  = remainingBefore - remainingAfter;
+
+  const cappedMsg = remainingLumpSum > 0
+    ? `<div class="mb-2 text-warning"><strong>Capped to Max:</strong> Increase was cut to reach the grade maximum. Remainder is paid once.</div>`
+    : "";
+
+  const promoSection = (promotion === "yes")
+    ? `
+      <div class="mt-2">
+        <strong>Promotion Increase (GC ${grade} → GC ${newGrade}):</strong><br>
+        Rate: <strong>${fmtPct(promoRate)}</strong><br>
+        Raw: <strong>${fmt(promoRaw)}</strong><br>
+        Rounded (0/5): <strong>${fmt(promoRounded)}</strong>
+      </div>
+    `
+    : `<div class="mt-2"><strong>Promotion:</strong> No</div>`;
+
+  show("incResult","success", `
+    ${cappedMsg}
+
+    <div class="mb-2">
+      <strong>Current grade:</strong> GC ${grade}<br>
+      <strong>Quarter before increases:</strong> ${qBefore.quarterName}<br>
+      <strong>Quarter range (current grade):</strong> ${beforeRangeText}<br>
+    </div>
+
+    <div class="mb-2">
+      <strong>Annual Increase:</strong><br>
+      Rating: <strong>${rating}</strong><br>
+      Rate: <strong>${fmtPct(annualRate)}</strong><br>
+      Raw: <strong>${fmt(annualRaw)}</strong><br>
+      Rounded (0/5): <strong>${fmt(annualRounded)}</strong>
+    </div>
+
+    ${promoSection}
+
+    <hr class="my-2">
+
+    <div class="mb-2">
+      <strong>Total Increase (Rounded):</strong> ${fmt(totalRounded)}<br>
+      <strong>Applied Increase (to Max of GC ${newGrade}):</strong> ${fmt(appliedIncrease)}<br>
+      <strong>New Salary:</strong> ${fmt(newSalary)}<br>
+      <strong>Remaining (One-time Lump Sum):</strong> ${fmt(remainingLumpSum)}
+    </div>
+
+    <div class="mt-2">
+      <strong>Quarter after increases (based on GC ${newGrade}):</strong> ${afterQuarterName} ${movedText}<br>
+      <strong>Quarter range (GC ${newGrade}):</strong> ${afterRangeText}
+    </div>
+
+    <div class="mt-3">
+      <strong>Grade progress on GC ${newGrade} (Min → Max):</strong><br>
+      Before: <strong>${progressBefore.toFixed(2)}%</strong> &nbsp;|&nbsp;
+      After: <strong>${progressAfter.toFixed(2)}%</strong> &nbsp;|&nbsp;
+      Change: <strong>${progressDelta.toFixed(2)}%</strong>
+    </div>
+
+    <div class="mt-2">
+      <strong>Remaining to Max on GC ${newGrade}:</strong><br>
+      Before: <strong>${fmt(remainingBefore)}</strong> &nbsp;|&nbsp;
+      After: <strong>${fmt(remainingAfter)}</strong> &nbsp;|&nbsp;
+      Reduced by: <strong>${fmt(remainingDelta)}</strong>
+    </div>
+  `);
+};
+
+/* =========================
+   TAB 3: SAIP
+========================= */
+
+function getSaipGradeFactor(gc){
+  if(gc >= 6 && gc <= 10) return 1.5;
+  if(gc >= 11 && gc <= 14) return 1.8;
+  if(gc >= 15) return 2.4;
+  return null; // not defined (e.g., 3-5) unless you want to add rules later
+}
+
+function getSaipRatingFactor(r){
+  if(r === "S") return 1.5;
+  if(r === "E+") return 1.25;
+  if(r === "E") return 1.0;
+  if(r === "M") return 0.75;
+  if(r === "D") return 0.0;
+  return null;
+}
+
+function getProtectedFloorFactor(gc){
+  if(gc >= 3 && gc <= 10) return 1.0;
+  if(gc >= 11 && gc <= 14) return 1.6;
+  if(gc >= 15) return 2.0;
+  return null;
+}
+
+document.getElementById("saipCalcBtn").onclick=()=>{
+  const gradeStr = document.getElementById("saipGrade").value;
+  const gc = Number(gradeStr);
+  const salary = Number(document.getElementById("saipSalary").value);
+  const rating = document.getElementById("saipRating").value;
+  const isProtected = document.getElementById("saipProtected").value === "yes";
+  const companyFactor = Number(document.getElementById("saipCompanyFactor").value);
+
+  if(!gradeStr || !Number.isFinite(salary) || salary < 0 || !rating || !Number.isFinite(companyFactor) || companyFactor < 0){
+    return show("saipResult","warning","Enter valid inputs: grade, salary (>=0), rating, and company factor (>=0).");
+  }
+
+  const gradeFactor = getSaipGradeFactor(gc);
+  const ratingFactor = getSaipRatingFactor(rating);
+
+  if(gradeFactor == null){
+    return show("saipResult","danger", `
+      <strong>GradeFactor not defined</strong> for GC ${gc}.<br>
+      Your current rule-set defines GradeFactor only for GC 6+.
+    `);
+  }
+  if(ratingFactor == null){
+    return show("saipResult","danger","Invalid rating.");
+  }
+
+  // Base computed SAIP (with rating factor; D => 0)
+  const computed = salary * gradeFactor * ratingFactor * companyFactor;
+
+  // Protected floor (ONLY applies when rating = D and protected = yes)
+  let floorFactor = null;
+  let floorAmount = 0;
+  let finalAmount = computed;
+  let floorApplied = false;
+
+  if(rating === "D"){
+    if(!isProtected){
+      finalAmount = 0;
+    } else {
+      floorFactor = getProtectedFloorFactor(gc);
+      if(floorFactor == null){
+        return show("saipResult","danger", "Protected floor factor not defined for this grade.");
+      }
+      floorAmount = salary * floorFactor * companyFactor;
+
+      // Apply floor only if computed is less than the protected limit (your condition)
+      if(computed < floorAmount){
+        finalAmount = floorAmount;
+        floorApplied = true;
+      } else {
+        finalAmount = computed;
+      }
+    }
+  }
+
+  const msgD = (rating === "D" && !isProtected)
+    ? `<div class="text-warning mb-2"><strong>Rating D:</strong> No SAIP unless Protected. Final bonus set to 0.</div>`
+    : "";
+
+  const msgFloor = (rating === "D" && isProtected)
+    ? `<div class="mb-2">
+         <strong>Protected:</strong> Yes<br>
+         <strong>Protected Floor Factor:</strong> ${floorFactor}<br>
+         <strong>Protected Floor Amount (Salary × FloorFactor × CompanyFactor):</strong> ${fmt(floorAmount)}<br>
+         <strong>Floor Applied?</strong> ${floorApplied ? '<span class="text-success">Yes</span>' : '<span class="text-secondary">No</span>'}
+       </div>`
+    : `<div class="mb-2"><strong>Protected:</strong> ${isProtected ? "Yes" : "No"}</div>`;
+
+  show("saipResult","success", `
+    ${msgD}
+
+    <div class="mb-2">
+      <strong>Inputs</strong><br>
+      Grade (GC): <strong>${gc}</strong><br>
+      Salary: <strong>${fmt(salary)}</strong><br>
+      Rating: <strong>${rating}</strong><br>
+      Company Factor: <strong>${companyFactor}</strong>
+    </div>
+
+    <div class="mb-2">
+      <strong>Factors</strong><br>
+      GradeFactor: <strong>${gradeFactor}</strong><br>
+      RatingFactor: <strong>${ratingFactor}</strong>
+    </div>
+
+    ${msgFloor}
+
+    <hr class="my-2">
+
+    <div class="mb-2">
+      <strong>Computed SAIP (Salary (${salary}) × GradeFactor (${gradeFactor}) × RatingFactor (${ratingFactor}) × CompanyFactor (${companyFactor})):</strong> ${fmt(computed)}<br>
+      <strong>Final SAIP Bonus:</strong> ${fmt(finalAmount)}
+    </div>
   `);
 };
 </script>
