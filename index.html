@@ -1,85 +1,222 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Salary Tools</title>
+  <title>أدوات الرواتب</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root { --radius: 16px; }
+
+    body{
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    .app-shell{ max-width: 1100px; }
+    .card{ border-radius: var(--radius); }
+    .card-header{
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+      background: #fff;
+    }
+
+    /* Tabs: scroll on phones */
+    .nav-tabs{
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+    .nav-tabs .nav-link{ white-space: nowrap; }
+
+    /* Tap targets */
+    .form-control, .form-select, .btn{ min-height: 44px; }
+    .btn-sm{ min-height: 40px; }
+
+    /* Focus */
+    :focus-visible{
+      outline: 3px solid rgba(13,110,253,.35);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    .result-box{ border-radius: 14px; }
+    .result-box .badge{ font-size: .9rem; }
+
+    /* Sticky mobile actions */
+    .sticky-actions{
+      position: sticky;
+      bottom: 0;
+      z-index: 1020;
+      background: rgba(248,249,250,.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0,0,0,.08);
+      padding: .75rem;
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
+      margin: 0 -1.5rem -1.5rem;
+    }
+    @media (min-width: 992px){
+      .sticky-actions{
+        position: static;
+        margin: 0;
+        padding: 0;
+        border-top: 0;
+        background: transparent;
+        backdrop-filter:none;
+      }
+    }
+
+    .table thead th{ white-space: nowrap; }
+    .table-responsive{ border-radius: 12px; border: 1px solid rgba(0,0,0,.08); }
+
+    .helper{ color:#6c757d; }
+
+    /* RTL/LTR spacing fixes */
+    html[dir="rtl"] .me-1{ margin-left: .25rem !important; margin-right: 0 !important; }
+    html[dir="rtl"] .me-2{ margin-left: .5rem !important; margin-right: 0 !important; }
+    html[dir="rtl"] .ms-2{ margin-right: .5rem !important; margin-left: 0 !important; }
+
+    html[dir="ltr"] .me-1{ margin-right: .25rem !important; margin-left: 0 !important; }
+    html[dir="ltr"] .me-2{ margin-right: .5rem !important; margin-left: 0 !important; }
+    html[dir="ltr"] .ms-2{ margin-left: .5rem !important; margin-right: 0 !important; }
+
+    .toast-container{ z-index: 2000; }
+  </style>
 </head>
 
 <body class="bg-light">
-<div class="container py-5">
+<div class="container py-3 py-md-5 app-shell">
   <div class="row justify-content-center">
-    <div class="col-lg-10">
+    <div class="col-12">
       <div class="card shadow-sm">
-        <div class="card-body p-4">
-          <h1 class="h4 mb-3">Salary Tools</h1>
+        <div class="card-header p-3 p-md-4">
+          <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+              <h1 class="h4 mb-1" id="appTitle" data-i18n="appTitle">أدوات الرواتب</h1>
+              <p class="mb-0 helper" id="appSubtitle" data-i18n="appSubtitle">حساب سريع للربع، الزيادة السنوية، و SAIP.</p>
+            </div>
 
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <button id="copyActiveBtn" class="btn btn-outline-primary btn-sm" type="button" data-i18n="copyBtn">نسخ النتيجة</button>
+
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="rtlToggle" checked>
+                <label class="form-check-label small" for="rtlToggle" id="rtlLabel" data-i18n="rtlLabel">العربية / RTL</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-3 p-md-4">
           <!-- Tabs -->
-          <ul class="nav nav-tabs" id="salaryTabs" role="tablist">
+          <ul class="nav nav-tabs" id="salaryTabs" role="tablist" aria-label="أقسام أدوات الرواتب">
             <li class="nav-item" role="presentation">
               <button class="nav-link active" id="checker-tab" data-bs-toggle="tab" data-bs-target="#checker"
-                      type="button" role="tab" aria-controls="checker" aria-selected="true">
-                Quarter Checker
+                      type="button" role="tab" aria-controls="checker" aria-selected="true" data-i18n="tabQuarter">
+                فحص الربع
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="increase-tab" data-bs-toggle="tab" data-bs-target="#increase"
-                      type="button" role="tab" aria-controls="increase" aria-selected="false">
-                Annual Increase
+                      type="button" role="tab" aria-controls="increase" aria-selected="false" data-i18n="tabIncrease">
+                الزيادة السنوية
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="saip-tab" data-bs-toggle="tab" data-bs-target="#saip"
-                      type="button" role="tab" aria-controls="saip" aria-selected="false">
+                      type="button" role="tab" aria-controls="saip" aria-selected="false" data-i18n="tabSaip">
                 SAIP
               </button>
             </li>
           </ul>
 
-          <div class="tab-content pt-4" id="salaryTabsContent">
+          <div class="tab-content pt-3 pt-md-4" id="salaryTabsContent">
 
-            <!-- TAB 1: Quarter Checker -->
-            <div class="tab-pane fade show active" id="checker" role="tabpanel" aria-labelledby="checker-tab">
-              <h2 class="h5 mb-3">Salary Quarter Checker</h2>
+            <!-- TAB 1 -->
+            <div class="tab-pane fade show active" id="checker" role="tabpanel" aria-labelledby="checker-tab" tabindex="0">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <h2 class="h5 mb-0" id="t1Title" data-i18n="t1Title">فحص الربع للراتب</h2>
+                <span class="badge text-bg-light border" id="t1Badge" data-i18n="t1Badge">GC 6–17</span>
+              </div>
 
-              <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                  <label class="form-label">Grade (GC)</label>
-                  <select id="grade" class="form-select">
-                    <option value="" selected disabled>Select grade</option>
-                  </select>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <label class="form-label" for="grade" id="t1GradeLabel" data-i18n="gradeLabel">الدرجة (GC)</label>
+                  <select id="grade" class="form-select" aria-required="true"></select>
                 </div>
 
-                <div class="col-md-5">
-                  <label class="form-label">Salary</label>
-                  <input id="salary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                <div class="col-12 col-md-5">
+                  <label class="form-label" for="salaryDisplay" id="t1SalaryLabel" data-i18n="salaryLabel">الراتب</label>
+
+                  <input id="salaryDisplay"
+                         type="text"
+                         class="form-control"
+                         data-i18n-placeholder="salaryPlaceholder"
+                         placeholder="مثال: 25,000"
+                         inputmode="numeric"
+                         autocomplete="off"
+                         aria-describedby="salaryHelp">
+
+                  <input id="salary" type="hidden" value="">
+
+                  <div id="salaryHelp" class="form-text" data-i18n="salaryHelp">أرقام فقط (ريال). سيتم تنسيق الرقم تلقائياً أثناء الكتابة.</div>
                 </div>
 
-                <div class="col-md-3 d-grid">
-                  <button id="checkBtn" class="btn btn-primary">Check</button>
+                <div class="col-12 col-md-3 d-none d-lg-grid">
+                  <button id="checkBtn" class="btn btn-primary" type="button" data-i18n="checkBtn">تحقق</button>
                 </div>
               </div>
 
-              <hr class="my-4">
-              <div id="result" class="alert d-none"></div>
+              <div class="sticky-actions d-lg-none mt-3">
+                <div class="d-grid gap-2">
+                  <button id="checkBtnMobile" class="btn btn-primary btn-lg" type="button" data-i18n="checkBtn">تحقق</button>
+                  <div class="d-flex gap-2">
+                    <button id="resetCheckerMobile" class="btn btn-outline-danger w-50" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                    <button class="btn btn-outline-secondary w-50"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#salaryTable"
+                            aria-controls="salaryTable"
+                            aria-expanded="false"
+                            data-i18n="toggleSalaryTable">
+                      الجدول
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-              <button class="btn btn-outline-secondary btn-sm mt-3"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#salaryTable">
-                Show Salary Table
-              </button>
+              <div class="d-none d-lg-flex gap-2 mt-3">
+                <button id="resetChecker" class="btn btn-outline-danger" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#salaryTable"
+                        aria-controls="salaryTable"
+                        aria-expanded="false"
+                        data-i18n="showSalaryTable">
+                  عرض جدول الرواتب
+                </button>
+              </div>
+
+              <hr class="my-4">
+              <div id="result" class="alert d-none result-box" role="status" aria-live="polite"></div>
 
               <div id="salaryTable" class="collapse mt-3">
                 <div class="table-responsive">
-                  <table class="table table-sm table-striped align-middle">
+                  <table class="table table-sm table-striped align-middle mb-0">
                     <thead class="table-dark">
                       <tr>
-                        <th>GC</th>
-                        <th>0–25%</th>
-                        <th>25–50%</th>
-                        <th>50–75%</th>
-                        <th>75–100%</th>
+                        <th data-i18n="thGc">GC</th>
+                        <th data-i18n="thQ1">0–25%</th>
+                        <th data-i18n="thQ2">25–50%</th>
+                        <th data-i18n="thQ3">50–75%</th>
+                        <th data-i18n="thQ4">75–100%</th>
                       </tr>
                     </thead>
                     <tbody id="salaryTableBody"></tbody>
@@ -88,75 +225,115 @@
               </div>
             </div>
 
-            <!-- TAB 2: Annual Increase + Promotion -->
-            <div class="tab-pane fade" id="increase" role="tabpanel" aria-labelledby="increase-tab">
-              <h2 class="h5 mb-3">Annual Increase Calculator</h2>
+            <!-- TAB 2 -->
+            <div class="tab-pane fade" id="increase" role="tabpanel" aria-labelledby="increase-tab" tabindex="0">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <h2 class="h5 mb-0" id="t2Title" data-i18n="t2Title">حاسبة الزيادة السنوية</h2>
+                <span class="badge text-bg-light border" id="t2Badge" data-i18n="t2Badge">ترقية + سقف + مبلغ مقطوع</span>
+              </div>
 
-              <div class="row g-3 align-items-end">
-                <div class="col-md-2">
-                  <label class="form-label">Grade (GC)</label>
-                  <select id="incGrade" class="form-select">
-                    <option value="" selected disabled>Select grade</option>
-                  </select>
+              <div class="row g-3">
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="incGrade" data-i18n="gradeLabel">الدرجة (GC)</label>
+                  <select id="incGrade" class="form-select" aria-required="true"></select>
                 </div>
 
-                <div class="col-md-4">
-                  <label class="form-label">Current Salary</label>
-                  <input id="incSalary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                <div class="col-12 col-md-4">
+                  <label class="form-label" for="incSalaryDisplay" data-i18n="currentSalaryLabel">الراتب الحالي</label>
+
+                  <input id="incSalaryDisplay"
+                         type="text"
+                         class="form-control"
+                         data-i18n-placeholder="salaryPlaceholder"
+                         placeholder="مثال: 25,000"
+                         inputmode="numeric"
+                         autocomplete="off">
+
+                  <input id="incSalary" type="hidden" value="">
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Performance Rating</label>
-                  <select id="incRating" class="form-select">
-                    <option value="" selected disabled>Select rating</option>
-                    <option value="S">S</option>
-                    <option value="E+">E+</option>
-                    <option value="E">E</option>
-                    <option value="M">M</option>
-                  </select>
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="incRating" data-i18n="ratingLabel">تقييم الأداء</label>
+                  <select id="incRating" class="form-select" aria-required="true"></select>
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Promotion?</label>
-                  <select id="incPromotion" class="form-select">
-                    <option value="no" selected>No</option>
-                    <option value="yes">Yes</option>
-                  </select>
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="incPromotion" data-i18n="promotionLabel">ترقية؟</label>
+                  <select id="incPromotion" class="form-select"></select>
                 </div>
 
-                <div class="col-md-2 d-grid">
-                  <button id="calcIncreaseBtn" class="btn btn-success">Calculate</button>
+                <div class="col-12 col-md-2 d-none d-lg-grid">
+                  <button id="calcIncreaseBtn" class="btn btn-success" type="button" data-i18n="calcBtn">احسب</button>
                 </div>
               </div>
 
-              <div class="form-text mt-2">
-                Rules:
-                If salary &gt; current grade max → stops.
-                Salary can be below Min (calculator still works; treated as Q1 for calculation).
-                Increases rounded to end with 0 or 5.
-                If total exceeds max (current or next grade), salary caps to max and remainder is Lump Sum.
-                Quarter after increase is evaluated on post-grade (next grade if promotion).
+              <div class="alert alert-light border mt-3 mb-0" role="note">
+                <div class="fw-semibold mb-1" data-i18n="rulesTitle">القواعد (ملخص)</div>
+                <ul class="mb-0 small" id="rulesList"></ul>
+              </div>
+
+              <div class="sticky-actions d-lg-none mt-3">
+                <div class="d-grid gap-2">
+                  <button id="calcIncreaseBtnMobile" class="btn btn-success btn-lg" type="button" data-i18n="calcBtn">احسب</button>
+                  <div class="d-flex gap-2">
+                    <button id="resetIncreaseMobile" class="btn btn-outline-danger w-50" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                    <button class="btn btn-outline-secondary w-50"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#increaseTable"
+                            aria-controls="increaseTable"
+                            aria-expanded="false"
+                            data-i18n="showIncreaseTableMobile">
+                      جدول النسب
+                    </button>
+                  </div>
+                  <button class="btn btn-outline-secondary"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#promoTable"
+                          aria-controls="promoTable"
+                          aria-expanded="false"
+                          data-i18n="showPromoTableMobile">
+                    جدول نسب الترقية
+                  </button>
+                </div>
+              </div>
+
+              <div class="d-none d-lg-flex gap-2 flex-wrap mt-3">
+                <button id="resetIncrease" class="btn btn-outline-danger" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#increaseTable"
+                        aria-controls="increaseTable"
+                        aria-expanded="false"
+                        data-i18n="showIncreaseTable">
+                  عرض جدول نسب الزيادة السنوية
+                </button>
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#promoTable"
+                        aria-controls="promoTable"
+                        aria-expanded="false"
+                        data-i18n="showPromoTable">
+                  عرض جدول نسب الترقية
+                </button>
               </div>
 
               <hr class="my-4">
-              <div id="incResult" class="alert d-none"></div>
-
-              <button class="btn btn-outline-secondary btn-sm mt-3"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#increaseTable">
-                Show Annual Increase % Table
-              </button>
+              <div id="incResult" class="alert d-none result-box" role="status" aria-live="polite"></div>
 
               <div id="increaseTable" class="collapse mt-3">
                 <div class="table-responsive">
-                  <table class="table table-sm table-striped align-middle">
+                  <table class="table table-sm table-striped align-middle mb-0">
                     <thead class="table-dark">
                       <tr>
-                        <th>Rating</th>
-                        <th>Quarter 1</th>
-                        <th>Quarter 2</th>
-                        <th>Quarter 3</th>
-                        <th>Quarter 4</th>
+                        <th data-i18n="thRating">التقييم</th>
+                        <th data-i18n="thQuarter1">الربع 1</th>
+                        <th data-i18n="thQuarter2">الربع 2</th>
+                        <th data-i18n="thQuarter3">الربع 3</th>
+                        <th data-i18n="thQuarter4">الربع 4</th>
                       </tr>
                     </thead>
                     <tbody id="increaseTableBody"></tbody>
@@ -164,22 +341,16 @@
                 </div>
               </div>
 
-              <button class="btn btn-outline-secondary btn-sm mt-3"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#promoTable">
-                Show Promotion % Table
-              </button>
-
               <div id="promoTable" class="collapse mt-3">
                 <div class="table-responsive">
-                  <table class="table table-sm table-striped align-middle">
+                  <table class="table table-sm table-striped align-middle mb-0">
                     <thead class="table-dark">
                       <tr>
-                        <th>Type</th>
-                        <th>Quarter 1</th>
-                        <th>Quarter 2</th>
-                        <th>Quarter 3</th>
-                        <th>Quarter 4</th>
+                        <th data-i18n="thType">النوع</th>
+                        <th data-i18n="thQuarter1">الربع 1</th>
+                        <th data-i18n="thQuarter2">الربع 2</th>
+                        <th data-i18n="thQuarter3">الربع 3</th>
+                        <th data-i18n="thQuarter4">الربع 4</th>
                       </tr>
                     </thead>
                     <tbody id="promoTableBody"></tbody>
@@ -188,112 +359,145 @@
               </div>
             </div>
 
-            <!-- TAB 3: SAIP -->
-            <div class="tab-pane fade" id="saip" role="tabpanel" aria-labelledby="saip-tab">
-              <h2 class="h5 mb-3">SAIP Bonus Calculator</h2>
+            <!-- TAB 3 -->
+            <div class="tab-pane fade" id="saip" role="tabpanel" aria-labelledby="saip-tab" tabindex="0">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <h2 class="h5 mb-0" data-i18n="t3Title">حاسبة مكافأة SAIP</h2>
+                <span class="badge text-bg-light border" data-i18n="t3Badge">يدعم الحد الأدنى للمحمّي</span>
+              </div>
 
-              <div class="row g-3 align-items-end">
-                <div class="col-md-2">
-                  <label class="form-label">Grade (GC)</label>
-                  <select id="saipGrade" class="form-select">
-                    <option value="" selected disabled>Select grade</option>
-                  </select>
+              <div class="row g-3">
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="saipGrade" data-i18n="gradeLabel">الدرجة (GC)</label>
+                  <select id="saipGrade" class="form-select" aria-required="true"></select>
                 </div>
 
-                <div class="col-md-4">
-                  <label class="form-label">Salary</label>
-                  <input id="saipSalary" type="number" class="form-control" placeholder="e.g., 25000" min="0" step="1">
+                <div class="col-12 col-md-4">
+                  <label class="form-label" for="saipSalaryDisplay" data-i18n="salaryLabel">الراتب</label>
+
+                  <input id="saipSalaryDisplay"
+                         type="text"
+                         class="form-control"
+                         data-i18n-placeholder="salaryPlaceholder"
+                         placeholder="مثال: 25,000"
+                         inputmode="numeric"
+                         autocomplete="off">
+
+                  <input id="saipSalary" type="hidden" value="">
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Rating</label>
-                  <select id="saipRating" class="form-select">
-                    <option value="" selected disabled>Select rating</option>
-                    <option value="S">S</option>
-                    <option value="E+">E+</option>
-                    <option value="E">E</option>
-                    <option value="M">M</option>
-                    <option value="D">D</option>
-                  </select>
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="saipRating" data-i18n="ratingLabelShort">التقييم</label>
+                  <select id="saipRating" class="form-select" aria-required="true"></select>
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Protected?</label>
-                  <select id="saipProtected" class="form-select">
-                    <option value="no" selected>No</option>
-                    <option value="yes">Yes</option>
-                  </select>
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="saipProtected" data-i18n="protectedLabel">محمي؟</label>
+                  <select id="saipProtected" class="form-select"></select>
                 </div>
 
-                <div class="col-md-2">
-                  <label class="form-label">Company Factor</label>
-                  <input id="saipCompanyFactor" type="number" class="form-control" placeholder="e.g., 1.0" min="0" step="0.01" value="1">
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="saipCompanyFactor" data-i18n="companyFactorLabel">عامل الشركة</label>
+                  <input id="saipCompanyFactor"
+                         type="number"
+                         class="form-control"
+                         data-i18n-placeholder="companyFactorPlaceholder"
+                         placeholder="مثال: 1.0"
+                         min="0"
+                         step="0.01"
+                         inputmode="decimal"
+                         value="1"
+                         aria-required="true">
                 </div>
 
-                <div class="col-md-12 d-grid mt-2">
-                  <button id="saipCalcBtn" class="btn btn-dark">Calculate SAIP</button>
+                <div class="col-12 d-none d-lg-grid mt-2">
+                  <button id="saipCalcBtn" class="btn btn-dark" type="button" data-i18n="calcSaipBtn">احسب SAIP</button>
                 </div>
               </div>
 
-              <div class="form-text mt-2">
-                <strong>Bonus = Salary × GradeFactor × RatingFactor × CompanyFactor</strong><br>
-                Rating <strong>D</strong>: bonus = 0 unless <strong>Protected</strong>.
-                If Protected and computed bonus is below the protected minimum (after CompanyFactor),
-                we pay the protected minimum.
+              <div class="alert alert-light border mt-3 mb-0" role="note">
+                <div class="fw-semibold" data-i18n="saipEquationTitle">معادلة المكافأة</div>
+                <div class="small" id="saipEquationText"></div>
+              </div>
+
+              <div class="sticky-actions d-lg-none mt-3">
+                <div class="d-grid gap-2">
+                  <button id="saipCalcBtnMobile" class="btn btn-dark btn-lg" type="button" data-i18n="calcSaipBtn">احسب SAIP</button>
+                  <div class="d-flex gap-2">
+                    <button id="resetSaipMobile" class="btn btn-outline-danger w-50" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                    <button class="btn btn-outline-secondary w-50"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#saipTables"
+                            aria-controls="saipTables"
+                            aria-expanded="false"
+                            data-i18n="showFactorsMobile">
+                      العوامل
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-none d-lg-flex gap-2 mt-3">
+                <button id="resetSaip" class="btn btn-outline-danger" type="button" data-i18n="resetBtn">إعادة ضبط</button>
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#saipTables"
+                        aria-controls="saipTables"
+                        aria-expanded="false"
+                        data-i18n="showFactors">
+                  عرض عوامل SAIP
+                </button>
               </div>
 
               <hr class="my-4">
-              <div id="saipResult" class="alert d-none"></div>
-
-              <button class="btn btn-outline-secondary btn-sm mt-3"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#saipTables">
-                Show SAIP Factors
-              </button>
+              <div id="saipResult" class="alert d-none result-box" role="status" aria-live="polite"></div>
 
               <div id="saipTables" class="collapse mt-3">
                 <div class="row g-3">
-                  <div class="col-md-6">
+                  <div class="col-12 col-md-6">
                     <div class="table-responsive">
-                      <table class="table table-sm table-striped align-middle">
+                      <table class="table table-sm table-striped align-middle mb-0">
                         <thead class="table-dark">
-                          <tr><th>Grade Band</th><th>GradeFactor</th></tr>
+                          <tr><th data-i18n="saipGradeRange">نطاق الدرجة</th><th data-i18n="saipGradeFactor">عامل الدرجة</th></tr>
                         </thead>
                         <tbody>
-                          <tr><td>GC 6–10</td><td>1.5</td></tr>
-                          <tr><td>GC 11–14</td><td>1.8</td></tr>
-                          <tr><td>GC 15+</td><td>2.4</td></tr>
+                          <tr><td data-i18n="saipGc610">GC 6–10</td><td>1.5</td></tr>
+                          <tr><td data-i18n="saipGc1114">GC 11–14</td><td>1.8</td></tr>
+                          <tr><td data-i18n="saipGc15p">GC 15+</td><td>2.4</td></tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
-                  <div class="col-md-6">
+
+                  <div class="col-12 col-md-6">
                     <div class="table-responsive">
-                      <table class="table table-sm table-striped align-middle">
+                      <table class="table table-sm table-striped align-middle mb-0">
                         <thead class="table-dark">
-                          <tr><th>Rating</th><th>RatingFactor</th></tr>
+                          <tr><th data-i18n="thRating">التقييم</th><th data-i18n="saipRatingFactor">عامل التقييم</th></tr>
                         </thead>
                         <tbody>
                           <tr><td>S</td><td>1.5</td></tr>
                           <tr><td>E+</td><td>1.25</td></tr>
                           <tr><td>E</td><td>1.0</td></tr>
                           <tr><td>M</td><td>0.75</td></tr>
-                          <tr><td>D</td><td>0 (unless Protected floor applies)</td></tr>
+                          <tr><td>D</td><td data-i18n="saipDNote">0 (إلا إذا انطبق حد المحمي)</td></tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
 
-                  <div class="col-md-12">
+                  <div class="col-12">
                     <div class="table-responsive">
-                      <table class="table table-sm table-striped align-middle">
+                      <table class="table table-sm table-striped align-middle mb-0">
                         <thead class="table-dark">
-                          <tr><th>Protected Floor (only when Rating=D & Protected=Yes)</th><th>Factor</th></tr>
+                          <tr><th data-i18n="saipProtectedFloorTitle">حد المحمي (فقط عند Rating=D و Protected=Yes)</th><th data-i18n="saipFloorFactor">عامل الحد</th></tr>
                         </thead>
                         <tbody>
-                          <tr><td>GC 6–10</td><td>1.0</td></tr>
-                          <tr><td>GC 11–14</td><td>1.6</td></tr>
-                          <tr><td>GC 15+</td><td>2.0</td></tr>
+                          <tr><td data-i18n="saipGc610">GC 6–10</td><td>1.0</td></tr>
+                          <tr><td data-i18n="saipGc1114">GC 11–14</td><td>1.6</td></tr>
+                          <tr><td data-i18n="saipGc15p">GC 15+</td><td>2.0</td></tr>
                         </tbody>
                       </table>
                     </div>
@@ -301,12 +505,24 @@
 
                 </div>
               </div>
-            </div><!-- /saip tab -->
-
-          </div><!-- /tab-content -->
-
+            </div><!-- /saip -->
+          </div><!-- /tabs -->
         </div>
       </div>
+
+      <p class="text-secondary small mt-3 mb-0" data-i18n="accessibilityNote">
+        سهولة الوصول: النتائج تُعلن لقارئات الشاشة، والمدخلات محسنة للهواتف.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="status" aria-live="polite" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastBody">تم</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
   </div>
 </div>
@@ -315,25 +531,23 @@
 
 <script>
 /* =========================
-   DATA
+   DATA (كما هي)
 ========================= */
-
 const salaryBands = {
-  6:{min:6695,max:12700,quarters:[{name:"1st Quarter",min:6695,max:8196},{name:"2nd Quarter",min:8197,max:9698},{name:"3rd Quarter",min:9699,max:11199},{name:"4th Quarter",min:11200,max:12700}]},
-  7:{min:7695,max:14615,quarters:[{name:"1st Quarter",min:7695,max:9425},{name:"2nd Quarter",min:9426,max:11155},{name:"3rd Quarter",min:11156,max:12885},{name:"4th Quarter",min:12886,max:14615}]},
-  8:{min:8850,max:16810,quarters:[{name:"1st Quarter",min:8850,max:10840},{name:"2nd Quarter",min:10841,max:12830},{name:"3rd Quarter",min:12831,max:14820},{name:"4th Quarter",min:14821,max:16810}]},
-  9:{min:10175,max:19330,quarters:[{name:"1st Quarter",min:10175,max:12464},{name:"2nd Quarter",min:12465,max:14753},{name:"3rd Quarter",min:14754,max:17041},{name:"4th Quarter",min:17042,max:19330}]},
-  10:{min:11700,max:22235,quarters:[{name:"1st Quarter",min:11700,max:14334},{name:"2nd Quarter",min:14335,max:16968},{name:"3rd Quarter",min:16969,max:19601},{name:"4th Quarter",min:19602,max:22235}]},
-  11:{min:13525,max:29310,quarters:[{name:"1st Quarter",min:13525,max:17471},{name:"2nd Quarter",min:17472,max:21418},{name:"3rd Quarter",min:21419,max:25364},{name:"4th Quarter",min:25365,max:29310}]},
-  12:{min:16230,max:33445,quarters:[{name:"1st Quarter",min:16230,max:20534},{name:"2nd Quarter",min:20535,max:24838},{name:"3rd Quarter",min:24839,max:29141},{name:"4th Quarter",min:29142,max:33445}]},
-  13:{min:18835,max:38800,quarters:[{name:"1st Quarter",min:18835,max:23826},{name:"2nd Quarter",min:23827,max:28818},{name:"3rd Quarter",min:28819,max:33809},{name:"4th Quarter",min:33810,max:38800}]},
-  14:{min:23740,max:48895,quarters:[{name:"1st Quarter",min:23740,max:30029},{name:"2nd Quarter",min:30030,max:36318},{name:"3rd Quarter",min:36319,max:42606},{name:"4th Quarter",min:42607,max:48895}]},
-  15:{min:29665,max:61140,quarters:[{name:"1st Quarter",min:29665,max:37534},{name:"2nd Quarter",min:37535,max:45403},{name:"3rd Quarter",min:45404,max:53271},{name:"4th Quarter",min:53272,max:61140}]},
-  16:{min:37780,max:77855,quarters:[{name:"1st Quarter",min:37780,max:47799},{name:"2nd Quarter",min:47800,max:57818},{name:"3rd Quarter",min:57819,max:67836},{name:"4th Quarter",min:67837,max:77855}]},
-  17:{min:42405,max:87385,quarters:[{name:"1st Quarter",min:42405,max:53650},{name:"2nd Quarter",min:53651,max:64895},{name:"3rd Quarter",min:64896,max:76140},{name:"4th Quarter",min:76141,max:87385}]}
+  6:{min:6695,max:12700,quarters:[{name:"Q1",min:6695,max:8196},{name:"Q2",min:8197,max:9698},{name:"Q3",min:9699,max:11199},{name:"Q4",min:11200,max:12700}]},
+  7:{min:7695,max:14615,quarters:[{name:"Q1",min:7695,max:9425},{name:"Q2",min:9426,max:11155},{name:"Q3",min:11156,max:12885},{name:"Q4",min:12886,max:14615}]},
+  8:{min:8850,max:16810,quarters:[{name:"Q1",min:8850,max:10840},{name:"Q2",min:10841,max:12830},{name:"Q3",min:12831,max:14820},{name:"Q4",min:14821,max:16810}]},
+  9:{min:10175,max:19330,quarters:[{name:"Q1",min:10175,max:12464},{name:"Q2",min:12465,max:14753},{name:"Q3",min:14754,max:17041},{name:"Q4",min:17042,max:19330}]},
+  10:{min:11700,max:22235,quarters:[{name:"Q1",min:11700,max:14334},{name:"Q2",min:14335,max:16968},{name:"Q3",min:16969,max:19601},{name:"Q4",min:19602,max:22235}]},
+  11:{min:13525,max:29310,quarters:[{name:"Q1",min:13525,max:17471},{name:"Q2",min:17472,max:21418},{name:"Q3",min:21419,max:25364},{name:"Q4",min:25365,max:29310}]},
+  12:{min:16230,max:33445,quarters:[{name:"Q1",min:16230,max:20534},{name:"Q2",min:20535,max:24838},{name:"Q3",min:24839,max:29141},{name:"Q4",min:29142,max:33445}]},
+  13:{min:18835,max:38800,quarters:[{name:"Q1",min:18835,max:23826},{name:"Q2",min:23827,max:28818},{name:"Q3",min:28819,max:33809},{name:"Q4",min:33810,max:38800}]},
+  14:{min:23740,max:48895,quarters:[{name:"Q1",min:23740,max:30029},{name:"Q2",min:30030,max:36318},{name:"Q3",min:36319,max:42606},{name:"Q4",min:42607,max:48895}]},
+  15:{min:29665,max:61140,quarters:[{name:"Q1",min:29665,max:37534},{name:"Q2",min:37535,max:45403},{name:"Q3",min:45404,max:53271},{name:"Q4",min:53272,max:61140}]},
+  16:{min:37780,max:77855,quarters:[{name:"Q1",min:37780,max:47799},{name:"Q2",min:47800,max:57818},{name:"Q3",min:57819,max:67836},{name:"Q4",min:67837,max:77855}]},
+  17:{min:42405,max:87385,quarters:[{name:"Q1",min:42405,max:53650},{name:"Q2",min:53651,max:64895},{name:"Q3",min:64896,max:76140},{name:"Q4",min:76141,max:87385}]}
 };
 
-// Annual increase percent table (Rating x Quarter)
 const increaseRates = {
   "S":  { q1: 0.087, q2: 0.073, q3: 0.054, q4: 0.032 },
   "E+": { q1: 0.073, q2: 0.062, q3: 0.046, q4: 0.036 },
@@ -341,64 +555,624 @@ const increaseRates = {
   "M":  { q1: 0.033, q2: 0.027, q3: 0.016, q4: 0.009 }
 };
 
-// Promotion (grade increase) rates by quarter
 const promotionRates = { q1: 0.09, q2: 0.07, q3: 0.05, q4: 0.05 };
 
 /* =========================
-   HELPERS
+   Helpers
 ========================= */
-
 const fmt = n => Number(n).toLocaleString("en-US");
-const sar = n => `${fmt(n)} SAR`;
+const sar = n => `${fmt(n)} ${t("sar")}`;
 const fmtPct = x => (x * 100).toFixed(1) + "%";
 const roundTo5 = n => Math.round(n / 5) * 5;
 
-function show(elId, type, html){
-  const r = document.getElementById(elId);
-  r.className = `alert alert-${type}`;
-  r.innerHTML = html;
-  r.classList.remove("d-none");
+function toast(msg){
+  document.getElementById("toastBody").textContent = msg;
+  const t = new bootstrap.Toast(document.getElementById("appToast"), { delay: 1600 });
+  t.show();
 }
 
-function readNumber(id){
-  const v = Number(document.getElementById(id).value);
-  return Number.isFinite(v) ? v : NaN;
+function show(elId, type, html){
+  const r = document.getElementById(elId);
+  r.className = `alert alert-${type} result-box`;
+  r.innerHTML = html;
+  r.classList.remove("d-none");
+  r.setAttribute("tabindex","-1");
+  r.focus({preventScroll:false});
+}
+
+function hide(elId){
+  const r = document.getElementById(elId);
+  r.classList.add("d-none");
+  r.innerHTML = "";
 }
 
 function badge(text,type){
   return `<span class="badge bg-${type} me-1 mb-1">${text}</span>`;
 }
 
-function populateGrades(selectId, from, to){
+function clamp01(x){ return Math.min(1, Math.max(0, x)); }
+
+/* =========================
+   Money input: format-as-you-type + raw value hidden
+========================= */
+function parseNumericText(s){
+  if(typeof s !== "string") return NaN;
+  const cleaned = s.replace(/[^\d]/g, "");
+  if(cleaned === "") return NaN;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function setMoneyInput(displayId, rawId, rawValue){
+  const display = document.getElementById(displayId);
+  const raw = document.getElementById(rawId);
+  if(!Number.isFinite(rawValue) || rawValue < 0){
+    display.value = "";
+    raw.value = "";
+    return;
+  }
+  display.value = fmt(rawValue);
+  raw.value = String(rawValue);
+}
+
+function wireMoneyInput(displayId, rawId, onChange){
+  const display = document.getElementById(displayId);
+  const raw = document.getElementById(rawId);
+
+  function sync(){
+    const n = parseNumericText(display.value);
+    if(Number.isFinite(n) && n >= 0){
+      raw.value = String(n);
+      const caretAtEnd = (display.selectionStart === display.value.length);
+      display.value = fmt(n);
+      if(caretAtEnd){
+        display.setSelectionRange(display.value.length, display.value.length);
+      }
+    } else {
+      raw.value = "";
+    }
+    if(typeof onChange === "function") onChange();
+  }
+
+  display.addEventListener("input", sync);
+  display.addEventListener("blur", sync);
+
+  display.addEventListener("paste", (e)=>{
+    const txt = (e.clipboardData || window.clipboardData).getData("text");
+    const n = parseNumericText(txt);
+    e.preventDefault();
+    if(Number.isFinite(n) && n >= 0){
+      display.value = fmt(n);
+      raw.value = String(n);
+      if(typeof onChange === "function") onChange();
+    }
+  });
+}
+
+function readNumberFromHidden(id){
+  const v = Number(document.getElementById(id).value);
+  return Number.isFinite(v) ? v : NaN;
+}
+
+/* =========================
+   LocalStorage persistence
+========================= */
+const STORAGE_KEY = "salaryTools:v4_bilingual";
+
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+  catch{ return {}; }
+}
+
+function saveState(partial){
+  const curr = loadState();
+  const next = { ...curr, ...partial };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+}
+
+function persistAllInputs(){
+  const state = {
+    rtl: document.documentElement.dir === "rtl",
+    lang: document.documentElement.lang || "ar",
+
+    checker: {
+      grade: document.getElementById("grade").value || "",
+      salary: document.getElementById("salary").value || ""
+    },
+    increase: {
+      grade: document.getElementById("incGrade").value || "",
+      salary: document.getElementById("incSalary").value || "",
+      rating: document.getElementById("incRating").value || "",
+      promotion: document.getElementById("incPromotion").value || "no"
+    },
+    saip: {
+      grade: document.getElementById("saipGrade").value || "",
+      salary: document.getElementById("saipSalary").value || "",
+      rating: document.getElementById("saipRating").value || "",
+      protected: document.getElementById("saipProtected").value || "no",
+      companyFactor: document.getElementById("saipCompanyFactor").value || "1"
+    }
+  };
+  saveState(state);
+}
+
+/* =========================
+   I18N (Full UI)
+========================= */
+const I18N = {
+  ar: {
+    sar: "ريال",
+    appTitle: "أدوات الرواتب",
+    appSubtitle: "حساب سريع للربع، الزيادة السنوية، و SAIP.",
+    rtlLabel: "العربية / RTL",
+    copyBtn: "نسخ النتيجة",
+
+    tabQuarter: "فحص الربع",
+    tabIncrease: "الزيادة السنوية",
+    tabSaip: "SAIP",
+
+    t1Title: "فحص الربع للراتب",
+    t1Badge: "GC 6–17",
+    t2Title: "حاسبة الزيادة السنوية",
+    t2Badge: "ترقية + سقف + مبلغ مقطوع",
+    t3Title: "حاسبة مكافأة SAIP",
+    t3Badge: "يدعم الحد الأدنى للمحمّي",
+
+    gradeLabel: "الدرجة (GC)",
+    salaryLabel: "الراتب",
+    currentSalaryLabel: "الراتب الحالي",
+    salaryPlaceholder: "مثال: 25,000",
+    salaryHelp: "أرقام فقط (ريال). سيتم تنسيق الرقم تلقائياً أثناء الكتابة.",
+    companyFactorPlaceholder: "مثال: 1.0",
+
+    ratingLabel: "تقييم الأداء",
+    ratingLabelShort: "التقييم",
+    promotionLabel: "ترقية؟",
+    protectedLabel: "محمي؟",
+    companyFactorLabel: "عامل الشركة",
+
+    checkBtn: "تحقق",
+    calcBtn: "احسب",
+    calcSaipBtn: "احسب SAIP",
+    resetBtn: "إعادة ضبط",
+
+    showSalaryTable: "عرض جدول الرواتب",
+    toggleSalaryTable: "الجدول",
+    showIncreaseTable: "عرض جدول نسب الزيادة السنوية",
+    showPromoTable: "عرض جدول نسب الترقية",
+    showIncreaseTableMobile: "جدول النسب",
+    showPromoTableMobile: "جدول نسب الترقية",
+    showFactors: "عرض عوامل SAIP",
+    showFactorsMobile: "العوامل",
+
+    thGc: "GC",
+    thQ1: "0–25%",
+    thQ2: "25–50%",
+    thQ3: "50–75%",
+    thQ4: "75–100%",
+    thRating: "التقييم",
+    thQuarter1: "الربع 1",
+    thQuarter2: "الربع 2",
+    thQuarter3: "الربع 3",
+    thQuarter4: "الربع 4",
+    thType: "النوع",
+
+    chooseGrade: "اختر الدرجة",
+    chooseRating: "اختر التقييم",
+    choose: "اختر",
+    yes: "نعم",
+    no: "لا",
+
+    rulesTitle: "القواعد (ملخص)",
+    rules: [
+      "إذا الراتب أكبر من حد الدرجة الأعلى → يتوقف الحساب.",
+      "إذا الراتب أقل من الحد الأدنى → مسموح، ويُعامل كـ “ربع أول” لحساب النسبة.",
+      "يتم تقريب الزيادات لأقرب رقم ينتهي بـ 0 أو 5.",
+      "إذا تجاوزت الزيادة سقف الدرجة (الحالية أو التالية في الترقية) → يُثبت على السقف والباقي يصبح مبلغاً مقطوعاً.",
+      "تقييم الربع بعد الزيادة يتم على الدرجة بعد الترقية (إن وجدت)."
+    ],
+
+    saipEquationTitle: "معادلة المكافأة",
+    saipEquationHtml: `
+      <strong>المكافأة = الراتب × عامل الدرجة × عامل التقييم × عامل الشركة</strong><br>
+      تقييم <strong>D</strong>: المكافأة = 0 إلا إذا كان الموظف <strong>محمي</strong>.<br>
+      إذا كان محمي والمبلغ المحسوب أقل من الحد الأدنى (بعد عامل الشركة) → يتم دفع الحد الأدنى.
+    `,
+
+    saipGradeRange: "نطاق الدرجة",
+    saipGradeFactor: "عامل الدرجة",
+    saipRatingFactor: "عامل التقييم",
+    saipProtectedFloorTitle: "حد المحمي (فقط عند Rating=D و Protected=Yes)",
+    saipFloorFactor: "عامل الحد",
+    saipGc610: "GC 6–10",
+    saipGc1114: "GC 11–14",
+    saipGc15p: "GC 15+",
+    saipDNote: "0 (إلا إذا انطبق حد المحمي)",
+
+    accessibilityNote: "سهولة الوصول: النتائج تُعلن لقارئات الشاشة، والمدخلات محسنة للهواتف.",
+
+    copied: "تم النسخ",
+    noResult: "لا توجد نتيجة لنسخها بعد.",
+    resetDone: "تمت إعادة الضبط",
+    switchedAr: "تم تفعيل العربية/RTL",
+    switchedEn: "تم تفعيل الإنجليزية/LTR",
+
+    invalidInputs: "أدخل راتب صحيح (>= 0) واختر الدرجة.",
+    invalidInputs2: "أدخل راتب صحيح (>= 0)، واختر الدرجة والتقييم.",
+    invalidInputs3: "أدخل بيانات صحيحة: الدرجة، الراتب (>=0)، التقييم، عامل الشركة (>=0).",
+    invalidGrade: "درجة غير صحيحة (يجب 6–17).",
+
+    salaryAboveMax: (gc,max,entered)=>`
+      <strong>غير مسموح:</strong> الراتب أعلى من الحد الأعلى للدرجة.<br>
+      حد GC ${gc} الأعلى هو <strong>${sar(max)}</strong>، والراتب المُدخل <strong>${sar(entered)}</strong>.
+    `,
+    promoNotPossible: (ng)=> `<strong>الترقية غير ممكنة:</strong> الدرجة التالية (GC ${ng}) غير موجودة.`,
+    rateNotFound: "لم يتم العثور على نسبة الزيادة لهذه الحالة (التقييم/الربع).",
+
+    belowMin: "أقل من الحد الأدنى",
+    treatedQ1: "أقل من الحد الأدنى (يُعامل كربع أول لحساب النسبة)",
+    unknownQuarter: "غير معروف",
+
+    quarterProgression: "تدرج الأرباع",
+    passed: "الأرباع المُنجزة",
+    current: "الربع الحالي",
+    upcoming: "غير مُحقق بعد",
+    none: "لا يوجد",
+    maxReached: "لا يوجد — وصلت للحد الأعلى",
+    increaseFromMin: "الزيادة من الحد الأدنى",
+    pctOfRange: "من نطاق الدرجة",
+    neededToMax: "المتبقي للوصول للحد الأعلى",
+
+    annualIncrease: "الزيادة السنوية",
+    promotion: "الترقية",
+    totalIncrease: "إجمالي الزيادة (بعد التقريب)",
+    appliedIncrease: "الزيادة المطبقة (حتى حد الدرجة)",
+    newSalary: "الراتب بعد الزيادة",
+    lumpSum: "المتبقي (مبلغ مقطوع مرة واحدة)",
+    quarterBefore: "الربع قبل الزيادة",
+    quarterRange: "نطاق الربع",
+    quarterAfter: "الربع بعد الزيادة",
+    reevalNewGrade: (ng)=> `— إعادة تقييم على الدرجة الجديدة (GC ${ng})`,
+    sameQuarter: "— نفس الربع",
+    movedQuarter: "— انتقل لربع جديد",
+    evaluatedAfter: "— تم التقييم بعد الزيادة",
+    gradeProgress: "نسبة التقدم داخل الدرجة (من الأدنى للأعلى)",
+    before: "قبل",
+    after: "بعد",
+    change: "التغير",
+    remainingToMax: "المتبقي للوصول للحد الأعلى",
+    reducedBy: "انخفض بمقدار",
+    cappedMsg: "تم تثبيت الراتب على حد الدرجة الأعلى، والباقي مبلغ مقطوع.",
+
+    saipFormulaTitle: "المعادلة",
+    saipFormula: "المكافأة = الراتب × عامل الدرجة × عامل التقييم × عامل الشركة",
+    inputsTitle: "المدخلات",
+    factorsTitle: "العوامل",
+    protectedTitle: "محمي",
+    protectedFloorFactor: "عامل حد المحمي",
+    protectedFloorAmount: "مبلغ حد المحمي",
+    floorApplied: "تم تطبيق الحد؟",
+    ratingDNoProtected: "تقييم D: لا يوجد SAIP إلا إذا كان الموظف محمي. تم ضبط المكافأة إلى 0.",
+    finalBonus: "المكافأة النهائية",
+    breakdown: "تفصيل العملية",
+
+    q1Name: "الربع الأول",
+    q2Name: "الربع الثاني",
+    q3Name: "الربع الثالث",
+    q4Name: "الربع الرابع",
+  },
+
+  en: {
+    sar: "SAR",
+    appTitle: "Salary Tools",
+    appSubtitle: "Fast calculators for quarter check, annual increase, and SAIP.",
+    rtlLabel: "Arabic / RTL",
+    copyBtn: "Copy Result",
+
+    tabQuarter: "Quarter Check",
+    tabIncrease: "Annual Increase",
+    tabSaip: "SAIP",
+
+    t1Title: "Salary Quarter Check",
+    t1Badge: "GC 6–17",
+    t2Title: "Annual Increase Calculator",
+    t2Badge: "Promotion + Cap + Lump Sum",
+    t3Title: "SAIP Bonus Calculator",
+    t3Badge: "Supports Protected Minimum",
+
+    gradeLabel: "Grade (GC)",
+    salaryLabel: "Salary",
+    currentSalaryLabel: "Current Salary",
+    salaryPlaceholder: "e.g., 25,000",
+    salaryHelp: "Numbers only (SAR). Value auto-formats while typing.",
+    companyFactorPlaceholder: "e.g., 1.0",
+
+    ratingLabel: "Performance Rating",
+    ratingLabelShort: "Rating",
+    promotionLabel: "Promotion?",
+    protectedLabel: "Protected?",
+    companyFactorLabel: "Company Factor",
+
+    checkBtn: "Check",
+    calcBtn: "Calculate",
+    calcSaipBtn: "Calculate SAIP",
+    resetBtn: "Reset",
+
+    showSalaryTable: "Show Salary Table",
+    toggleSalaryTable: "Table",
+    showIncreaseTable: "Show Annual Increase Rates",
+    showPromoTable: "Show Promotion Rates",
+    showIncreaseTableMobile: "Rates",
+    showPromoTableMobile: "Promotion Rates",
+    showFactors: "Show SAIP Factors",
+    showFactorsMobile: "Factors",
+
+    thGc: "GC",
+    thQ1: "0–25%",
+    thQ2: "25–50%",
+    thQ3: "50–75%",
+    thQ4: "75–100%",
+    thRating: "Rating",
+    thQuarter1: "Q1",
+    thQuarter2: "Q2",
+    thQuarter3: "Q3",
+    thQuarter4: "Q4",
+    thType: "Type",
+
+    chooseGrade: "Select grade",
+    chooseRating: "Select rating",
+    choose: "Select",
+    yes: "Yes",
+    no: "No",
+
+    rulesTitle: "Rules (summary)",
+    rules: [
+      "If salary is above the grade maximum → calculation stops.",
+      "If salary is below the grade minimum → allowed and treated as “Q1” for rate selection.",
+      "All increases are rounded to the nearest number ending with 0 or 5.",
+      "If increase exceeds the grade cap (current or next grade in promotion) → salary is capped and the rest becomes a one-time lump sum.",
+      "Quarter-after evaluation is done on the post-promotion grade (if any)."
+    ],
+
+    saipEquationTitle: "Bonus formula",
+    saipEquationHtml: `
+      <strong>Bonus = Salary × Grade Factor × Rating Factor × Company Factor</strong><br>
+      Rating <strong>D</strong>: bonus = 0 unless the employee is <strong>Protected</strong>.<br>
+      If Protected and computed bonus is below the minimum (after company factor) → pay the minimum.
+    `,
+
+    saipGradeRange: "Grade range",
+    saipGradeFactor: "Grade factor",
+    saipRatingFactor: "Rating factor",
+    saipProtectedFloorTitle: "Protected floor (only when Rating=D and Protected=Yes)",
+    saipFloorFactor: "Floor factor",
+    saipGc610: "GC 6–10",
+    saipGc1114: "GC 11–14",
+    saipGc15p: "GC 15+",
+    saipDNote: "0 (unless Protected floor applies)",
+
+    accessibilityNote: "Accessibility: results announced to screen readers, inputs optimized for mobile.",
+
+    copied: "Copied",
+    noResult: "No result to copy yet.",
+    resetDone: "Reset done",
+    switchedAr: "Arabic/RTL enabled",
+    switchedEn: "English/LTR enabled",
+
+    invalidInputs: "Enter a valid salary (>= 0) and select a grade.",
+    invalidInputs2: "Enter a valid salary (>= 0), then select grade and rating.",
+    invalidInputs3: "Enter valid inputs: grade, salary (>=0), rating, company factor (>=0).",
+    invalidGrade: "Invalid grade (must be 6–17).",
+
+    salaryAboveMax: (gc,max,entered)=>`
+      <strong>Not allowed:</strong> salary is above the grade maximum.<br>
+      GC ${gc} max is <strong>${sar(max)}</strong>; entered salary is <strong>${sar(entered)}</strong>.
+    `,
+    promoNotPossible: (ng)=> `<strong>Promotion not possible:</strong> next grade (GC ${ng}) does not exist.`,
+    rateNotFound: "No increase rate found for this case (rating/quarter).",
+
+    belowMin: "Below minimum",
+    treatedQ1: "Below minimum (treated as Q1 for rate selection)",
+    unknownQuarter: "Unknown",
+
+    quarterProgression: "Quarter progression",
+    passed: "Completed quarters",
+    current: "Current quarter",
+    upcoming: "Upcoming",
+    none: "None",
+    maxReached: "None — at maximum",
+    increaseFromMin: "Increase above minimum",
+    pctOfRange: "of grade range",
+    neededToMax: "Remaining to maximum",
+
+    annualIncrease: "Annual increase",
+    promotion: "Promotion",
+    totalIncrease: "Total increase (rounded)",
+    appliedIncrease: "Applied increase (capped to grade max)",
+    newSalary: "New salary",
+    lumpSum: "Remaining (one-time lump sum)",
+    quarterBefore: "Quarter before",
+    quarterRange: "Quarter range",
+    quarterAfter: "Quarter after",
+    reevalNewGrade: (ng)=> `— re-evaluated on new grade (GC ${ng})`,
+    sameQuarter: "— same quarter",
+    movedQuarter: "— moved to a new quarter",
+    evaluatedAfter: "— evaluated after increase",
+    gradeProgress: "Progress within grade (min → max)",
+    before: "Before",
+    after: "After",
+    change: "Change",
+    remainingToMax: "Remaining to maximum",
+    reducedBy: "Reduced by",
+    cappedMsg: "Salary was capped at the grade maximum; the rest becomes a one-time lump sum.",
+
+    saipFormulaTitle: "Formula",
+    saipFormula: "Bonus = Salary × Grade Factor × Rating Factor × Company Factor",
+    inputsTitle: "Inputs",
+    factorsTitle: "Factors",
+    protectedTitle: "Protected",
+    protectedFloorFactor: "Protected floor factor",
+    protectedFloorAmount: "Protected floor amount",
+    floorApplied: "Floor applied?",
+    ratingDNoProtected: "Rating D: no SAIP unless Protected. Bonus set to 0.",
+    finalBonus: "Final bonus",
+    breakdown: "Calculation breakdown",
+
+    q1Name: "Quarter 1",
+    q2Name: "Quarter 2",
+    q3Name: "Quarter 3",
+    q4Name: "Quarter 4",
+  }
+};
+
+function t(key, ...args){
+  const lang = document.documentElement.lang || "ar";
+  const dict = I18N[lang] || I18N.ar;
+  const v = dict[key];
+  return (typeof v === "function") ? v(...args) : (v ?? key);
+}
+
+/* Apply translations to all tagged nodes */
+function applyTranslations(){
+  const lang = document.documentElement.lang || "ar";
+  const dict = I18N[lang] || I18N.ar;
+
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    const v = dict[key];
+    if(v == null) return;
+    el.textContent = (typeof v === "function") ? v() : v;
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-placeholder");
+    const v = dict[key];
+    if(v == null) return;
+    el.setAttribute("placeholder", (typeof v === "function") ? v() : v);
+  });
+
+  // Rules list
+  const ul = document.getElementById("rulesList");
+  ul.innerHTML = "";
+  (dict.rules || []).forEach(line=>{
+    const li = document.createElement("li");
+    li.textContent = line;
+    ul.appendChild(li);
+  });
+
+  // SAIP equation
+  document.getElementById("saipEquationText").innerHTML = dict.saipEquationHtml || "";
+}
+
+/* =========================
+   Select builders (fully bilingual)
+========================= */
+function buildGradeSelect(selectId, from=6, to=17){
   const sel = document.getElementById(selectId);
-  const frag = document.createDocumentFragment();
+  const current = sel.value;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.disabled = true;
+  ph.selected = true;
+  ph.textContent = t("chooseGrade");
+  sel.appendChild(ph);
+
   for(let g=from; g<=to; g++){
     const opt = document.createElement("option");
     opt.value = String(g);
     opt.textContent = String(g);
-    frag.appendChild(opt);
+    sel.appendChild(opt);
   }
-  sel.appendChild(frag);
+
+  // restore
+  if(current){
+    sel.value = current;
+    if(sel.value !== current) sel.selectedIndex = 0;
+  }
 }
 
-// Detect quarter by grade+salary
+function buildRatingSelect(selectId, includeD=false){
+  const sel = document.getElementById(selectId);
+  const current = sel.value;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.disabled = true;
+  ph.selected = true;
+  ph.textContent = t("chooseRating");
+  sel.appendChild(ph);
+
+  const list = includeD ? ["S","E+","E","M","D"] : ["S","E+","E","M"];
+  list.forEach(v=>{
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = v;
+    sel.appendChild(opt);
+  });
+
+  if(current){
+    sel.value = current;
+    if(sel.value !== current) sel.selectedIndex = 0;
+  }
+}
+
+function buildYesNoSelect(selectId, defaultVal="no"){
+  const sel = document.getElementById(selectId);
+  const current = sel.value || defaultVal;
+
+  sel.innerHTML = "";
+  const optNo = document.createElement("option");
+  optNo.value = "no";
+  optNo.textContent = t("no");
+
+  const optYes = document.createElement("option");
+  optYes.value = "yes";
+  optYes.textContent = t("yes");
+
+  sel.appendChild(optNo);
+  sel.appendChild(optYes);
+
+  sel.value = current;
+  if(sel.value !== current) sel.value = defaultVal;
+}
+
+function rebuildAllSelects(){
+  buildGradeSelect("grade", 6, 17);
+  buildGradeSelect("incGrade", 6, 17);
+  buildGradeSelect("saipGrade", 6, 17);
+
+  buildRatingSelect("incRating", false);
+  buildRatingSelect("saipRating", true);
+
+  buildYesNoSelect("incPromotion", "no");
+  buildYesNoSelect("saipProtected", "no");
+}
+
+/* =========================
+   Quarter detection (safe)
+========================= */
 function detectQuarter(gradeStr, enteredSalary){
   const band = salaryBands[gradeStr];
-  if(!band) return { ok:false, error:"Invalid grade." };
+  if(!band) return { ok:false, error:t("invalidGrade") };
 
   if (enteredSalary < band.min){
-    return { ok:false, band, quarterIndex:-1, quarterName:"Below Minimum" };
+    return { ok:false, band, quarterIndex:-1, quarterName:t("belowMin") };
   }
 
   const idx = band.quarters.findIndex(q => enteredSalary >= q.min && enteredSalary <= q.max);
-  const quarterName = band.quarters[idx]?.name ?? "Unknown";
+  const quarterName = (idx >= 0)
+    ? [t("q1Name"), t("q2Name"), t("q3Name"), t("q4Name")][idx]
+    : t("unknownQuarter");
+
   return { ok:true, band, quarterIndex: idx, quarterName };
 }
 
 /* =========================
    SAIP FACTORS
 ========================= */
-
 function getSaipGradeFactor(gc){
   if(gc >= 6 && gc <= 10) return 1.5;
   if(gc >= 11 && gc <= 14) return 1.8;
@@ -423,13 +1197,18 @@ function getProtectedFloorFactor(gc){
 /* =========================
    INIT UI
 ========================= */
+wireMoneyInput("salaryDisplay","salary", persistAllInputs);
+wireMoneyInput("incSalaryDisplay","incSalary", persistAllInputs);
+wireMoneyInput("saipSalaryDisplay","saipSalary", persistAllInputs);
 
-// Grade dropdowns must be 6–17 only (all tabs)
-populateGrades("grade", 6, 17);
-populateGrades("incGrade", 6, 17);
-populateGrades("saipGrade", 6, 17);
+["grade","incGrade","incRating","incPromotion","saipGrade","saipRating","saipProtected","saipCompanyFactor"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("change", persistAllInputs);
+  el.addEventListener("input", persistAllInputs);
+});
 
-// Salary table
+// Salary table (static ranges, bilingual headers handled by i18n)
 Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
   const q = salaryBands[gc].quarters;
   document.getElementById("salaryTableBody").innerHTML += `
@@ -444,75 +1223,130 @@ Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
 });
 
 // Annual increase table
-["S","E+","E","M"].forEach(key=>{
-  const r = increaseRates[key];
-  document.getElementById("increaseTableBody").innerHTML += `
+function renderIncreaseTables(){
+  document.getElementById("increaseTableBody").innerHTML = "";
+  ["S","E+","E","M"].forEach(key=>{
+    const r = increaseRates[key];
+    document.getElementById("increaseTableBody").innerHTML += `
+      <tr>
+        <td>${key}</td>
+        <td>${fmtPct(r.q1)}</td>
+        <td>${fmtPct(r.q2)}</td>
+        <td>${fmtPct(r.q3)}</td>
+        <td>${fmtPct(r.q4)}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("promoTableBody").innerHTML = `
     <tr>
-      <td>${key}</td>
-      <td>${fmtPct(r.q1)}</td>
-      <td>${fmtPct(r.q2)}</td>
-      <td>${fmtPct(r.q3)}</td>
-      <td>${fmtPct(r.q4)}</td>
+      <td>${t("promotion")}</td>
+      <td>${fmtPct(promotionRates.q1)}</td>
+      <td>${fmtPct(promotionRates.q2)}</td>
+      <td>${fmtPct(promotionRates.q3)}</td>
+      <td>${fmtPct(promotionRates.q4)}</td>
     </tr>
   `;
-});
+}
 
-// Promotion table
-document.getElementById("promoTableBody").innerHTML = `
-  <tr>
-    <td>Promotion</td>
-    <td>${fmtPct(promotionRates.q1)}</td>
-    <td>${fmtPct(promotionRates.q2)}</td>
-    <td>${fmtPct(promotionRates.q3)}</td>
-    <td>${fmtPct(promotionRates.q4)}</td>
-  </tr>
-`;
+/* =========================
+   Restore saved state (after selects are built)
+========================= */
+function restoreFromState(){
+  const s = loadState();
+  const rtl = (s.rtl !== undefined) ? !!s.rtl : true;
+  applyRTL(rtl, false);
+  document.getElementById("rtlToggle").checked = rtl;
+
+  if(s.checker){
+    if(s.checker.grade) document.getElementById("grade").value = s.checker.grade;
+    const n = Number(s.checker.salary);
+    setMoneyInput("salaryDisplay","salary", Number.isFinite(n) ? n : NaN);
+  }
+
+  if(s.increase){
+    if(s.increase.grade) document.getElementById("incGrade").value = s.increase.grade;
+    const n = Number(s.increase.salary);
+    setMoneyInput("incSalaryDisplay","incSalary", Number.isFinite(n) ? n : NaN);
+    if(s.increase.rating) document.getElementById("incRating").value = s.increase.rating;
+    if(s.increase.promotion) document.getElementById("incPromotion").value = s.increase.promotion;
+  }
+
+  if(s.saip){
+    if(s.saip.grade) document.getElementById("saipGrade").value = s.saip.grade;
+    const n = Number(s.saip.salary);
+    setMoneyInput("saipSalaryDisplay","saipSalary", Number.isFinite(n) ? n : NaN);
+    if(s.saip.rating) document.getElementById("saipRating").value = s.saip.rating;
+    if(s.saip.protected) document.getElementById("saipProtected").value = s.saip.protected;
+    if(s.saip.companyFactor) document.getElementById("saipCompanyFactor").value = s.saip.companyFactor;
+  }
+}
+
+/* =========================
+   RTL + Language toggle
+========================= */
+function applyRTL(isRTL, showToast=true){
+  document.documentElement.dir = isRTL ? "rtl" : "ltr";
+  document.documentElement.lang = isRTL ? "ar" : "en";
+
+  applyTranslations();
+  rebuildAllSelects();
+  renderIncreaseTables();
+
+  if(showToast){
+    toast(isRTL ? t("switchedAr") : t("switchedEn"));
+  }
+  persistAllInputs();
+}
+
+/* First run */
+applyTranslations();
+rebuildAllSelects();
+renderIncreaseTables();
+restoreFromState();
 
 /* =========================
    TAB 1: QUARTER CHECKER
-   ✅ Max enforced: if salary > max -> stop
 ========================= */
-
-document.getElementById("checkBtn").onclick=()=>{
+function runQuarterCheck(){
   const grade = document.getElementById("grade").value;
-  const enteredSalary = readNumber("salary");
+  const enteredSalary = readNumberFromHidden("salary");
 
   if(!grade || !Number.isFinite(enteredSalary) || enteredSalary < 0){
-    return show("result","warning", "Enter a valid salary (>= 0) and select a grade.");
+    return show("result","warning", t("invalidInputs"));
   }
 
   const band = salaryBands[grade];
-  if(!band) return show("result","danger","Invalid grade.");
+  if(!band) return show("result","danger", t("invalidGrade"));
 
-  // ✅ Max applied
   if(enteredSalary > band.max){
-    return show("result","danger", `
-      <strong>Not allowed:</strong> Salary is above the grade maximum.<br>
-      GC ${grade} max is <strong>${sar(band.max)}</strong>, entered salary is <strong>${sar(enteredSalary)}</strong>.
-    `);
+    return show("result","danger", t("salaryAboveMax", grade, band.max, enteredSalary));
   }
 
   const range = band.max - band.min;
 
   let idx = -1;
-  let currentName = "Below Minimum";
+  let currentName = t("belowMin");
+
   if (enteredSalary >= band.min){
     idx = band.quarters.findIndex(q => enteredSalary >= q.min && enteredSalary <= q.max);
-    currentName = band.quarters[idx].name;
+    currentName = (idx >= 0)
+      ? [t("q1Name"), t("q2Name"), t("q3Name"), t("q4Name")][idx]
+      : t("unknownQuarter");
   }
 
   const passed = (idx <= 0)
-    ? badge("None", "secondary")
-    : band.quarters.slice(0, idx).map(q => badge(q.name, "success")).join("");
+    ? badge(t("none"), "secondary")
+    : [t("q1Name"),t("q2Name"),t("q3Name"),t("q4Name")].slice(0, idx).map(q => badge(q, "success")).join("");
 
   const currentBadge = badge(
-    currentName + " (Current)",
+    `${currentName} (${t("current")})`,
     idx === -1 ? "warning" : "primary"
   );
 
   const upcoming = (idx === -1)
-    ? band.quarters.map(q => badge(q.name, "secondary")).join("")
-    : (band.quarters.slice(idx+1).map(q => badge(q.name, "secondary")).join("") || badge("None — Max reached", "dark"));
+    ? [t("q1Name"),t("q2Name"),t("q3Name"),t("q4Name")].map(q => badge(q, "secondary")).join("")
+    : ([t("q1Name"),t("q2Name"),t("q3Name"),t("q4Name")].slice(idx+1).map(q => badge(q, "secondary")).join("") || badge(t("maxReached"), "dark"));
 
   const increaseFromMin = enteredSalary - band.min;
   const percentFromMin = ((enteredSalary - band.min) / range) * 100;
@@ -521,59 +1355,65 @@ document.getElementById("checkBtn").onclick=()=>{
   const percentToMax = (neededToMax / range) * 100;
 
   show("result","success", `
-    <strong>Quarter Progression</strong><br><br>
+    <strong>${t("quarterProgression")}</strong><br><br>
 
-    <strong>✔ Quarters Passed:</strong><br>${passed}<br><br>
-    <strong>📍 Current Quarter:</strong><br>${currentBadge}<br><br>
-    <strong>🎯 Not Reached Yet:</strong><br>${upcoming}<br><br>
+    <strong>✔ ${t("passed")}:</strong><br>${passed}<br><br>
+    <strong>📍 ${t("current")}:</strong><br>${currentBadge}<br><br>
+    <strong>🎯 ${t("upcoming")}:</strong><br>${upcoming}<br><br>
 
     <hr class="my-2">
 
-    <strong>Increase from Min:</strong> ${sar(increaseFromMin)}
-    (<strong>${percentFromMin.toFixed(2)}%</strong> of the grade range)<br>
+    <strong>${t("increaseFromMin")}:</strong> ${sar(increaseFromMin)}
+    (<strong>${percentFromMin.toFixed(2)}%</strong> ${t("pctOfRange")})<br>
 
-    <strong>Increase Needed to Reach Max:</strong> ${sar(neededToMax)}
-    (<strong>${percentToMax.toFixed(2)}%</strong> of the grade range)
+    <strong>${t("neededToMax")}:</strong> ${sar(neededToMax)}
+    (<strong>${percentToMax.toFixed(2)}%</strong> ${t("pctOfRange")})
   `);
-};
+
+  persistAllInputs();
+}
+
+document.getElementById("checkBtn").onclick = runQuarterCheck;
+document.getElementById("checkBtnMobile").onclick = runQuarterCheck;
+
+function resetChecker(){
+  document.getElementById("grade").value = "";
+  setMoneyInput("salaryDisplay","salary", NaN);
+  hide("result");
+  persistAllInputs();
+  toast(t("resetDone"));
+}
+document.getElementById("resetChecker").onclick = resetChecker;
+document.getElementById("resetCheckerMobile").onclick = resetChecker;
 
 /* =========================
    TAB 2: ANNUAL INCREASE + PROMOTION
-   ✅ Max enforced: if salary > current max -> stop
-   ✅ Salary < Min allowed (treated as Q1)
 ========================= */
-
-document.getElementById("calcIncreaseBtn").onclick=()=>{
+function runIncreaseCalc(){
   const gradeStr = document.getElementById("incGrade").value;
   const grade = Number(gradeStr);
-  const salary = readNumber("incSalary");
+  const salary = readNumberFromHidden("incSalary");
   const rating = document.getElementById("incRating").value;
-  const promotion = document.getElementById("incPromotion").value; // yes/no
+  const promotion = document.getElementById("incPromotion").value;
 
   if(!gradeStr || !Number.isFinite(salary) || salary < 0 || !rating){
-    return show("incResult","warning","Enter a valid salary (>= 0), select grade and rating.");
+    return show("incResult","warning", t("invalidInputs2"));
   }
 
   const currentBand = salaryBands[String(grade)];
-  if(!currentBand){
-    return show("incResult","danger","Invalid grade.");
-  }
+  if(!currentBand) return show("incResult","danger", t("invalidGrade"));
 
-  // ✅ Max applied
   if(salary > currentBand.max){
-    return show("incResult","danger", `
-      <strong>Not allowed:</strong> Salary is above the current grade maximum.<br>
-      GC ${grade} max is <strong>${sar(currentBand.max)}</strong>, entered salary is <strong>${sar(salary)}</strong>.
-    `);
+    return show("incResult","danger", t("salaryAboveMax", grade, currentBand.max, salary));
   }
 
   const qBefore = detectQuarter(String(grade), salary);
 
   let quarterKey = "q1";
-  let qBeforeLabel = "Below Minimum (treated as Q1 for calculation)";
+  let qBeforeLabel = t("treatedQ1");
   let beforeRangeText = `${sar(currentBand.min)} – ${sar(currentBand.max)}`;
 
-  if(qBefore.ok){
+  if(qBefore.ok && qBefore.quarterIndex >= 0){
     quarterKey = ["q1","q2","q3","q4"][qBefore.quarterIndex];
     qBeforeLabel = qBefore.quarterName;
     const beforeRange = currentBand.quarters[qBefore.quarterIndex];
@@ -582,8 +1422,9 @@ document.getElementById("calcIncreaseBtn").onclick=()=>{
 
   const annualRate = increaseRates[rating]?.[quarterKey];
   if(annualRate == null){
-    return show("incResult","danger","Annual increase rate not found for the selected rating/quarter.");
+    return show("incResult","danger", t("rateNotFound"));
   }
+
   const annualRaw = salary * annualRate;
   const annualRounded = roundTo5(annualRaw);
 
@@ -595,17 +1436,16 @@ document.getElementById("calcIncreaseBtn").onclick=()=>{
     newGrade = grade + 1;
     const nextBand = salaryBands[String(newGrade)];
     if(!nextBand){
-      return show("incResult","danger", `<strong>Promotion not possible:</strong> Next grade (GC ${newGrade}) not found.`);
+      return show("incResult","danger", t("promoNotPossible", newGrade));
     }
     promoRate = promotionRates[quarterKey] ?? 0;
     promoRaw = salary * promoRate;
     promoRounded = roundTo5(promoRaw);
-    capBand = nextBand; // cap on new grade
+    capBand = nextBand;
   }
 
   const totalRounded = promoRounded + annualRounded;
 
-  // cap to max of capBand
   const headroomToMax = capBand.max - salary;
   const appliedIncrease = Math.min(totalRounded, headroomToMax);
   const newSalary = salary + appliedIncrease;
@@ -613,29 +1453,28 @@ document.getElementById("calcIncreaseBtn").onclick=()=>{
 
   const qAfter = detectQuarter(String(newGrade), newSalary);
 
-  let afterRangeText = "N/A";
-  let afterQuarterName = "Unknown";
+  let afterRangeText = "—";
+  let afterQuarterName = t("unknownQuarter");
   let movedText = "";
 
-  if(qAfter.ok){
+  if(qAfter.ok && qAfter.quarterIndex >= 0){
     afterQuarterName = qAfter.quarterName;
     const afterBand = salaryBands[String(newGrade)];
     const afterRange = afterBand.quarters[qAfter.quarterIndex];
     afterRangeText = `${sar(afterRange.min)} – ${sar(afterRange.max)}`;
 
     if(promotion === "yes"){
-      movedText = `<span class="text-primary">— Re-evaluated on new grade (GC ${newGrade})</span>`;
-    } else if(qBefore.ok) {
+      movedText = `<span class="text-primary">${t("reevalNewGrade", newGrade)}</span>`;
+    } else if(qBefore.ok && qBefore.quarterIndex >= 0) {
       movedText = (qAfter.quarterIndex === qBefore.quarterIndex)
-        ? `<span class="text-success">— Still the same quarter</span>`
-        : `<span class="text-primary">— Moved to a new quarter</span>`;
+        ? `<span class="text-success">${t("sameQuarter")}</span>`
+        : `<span class="text-primary">${t("movedQuarter")}</span>`;
     } else {
-      movedText = `<span class="text-primary">— Evaluated after increase</span>`;
+      movedText = `<span class="text-primary">${t("evaluatedAfter")}</span>`;
     }
   }
 
   const range = capBand.max - capBand.min;
-  const clamp01 = x => Math.min(1, Math.max(0, x));
 
   const progressBefore = clamp01((salary - capBand.min) / range) * 100;
   const progressAfter  = clamp01((newSalary - capBand.min) / range) * 100;
@@ -646,35 +1485,36 @@ document.getElementById("calcIncreaseBtn").onclick=()=>{
   const remainingDelta  = remainingBefore - remainingAfter;
 
   const cappedMsg = remainingLumpSum > 0
-    ? `<div class="mb-2 text-warning"><strong>Capped to Max:</strong> Increase was cut to reach the grade maximum. Remainder is paid once.</div>`
+    ? `<div class="mb-2 text-warning"><strong>${t("cappedMsg")}</strong></div>`
     : "";
 
   const promoSection = (promotion === "yes")
     ? `
       <div class="mt-2">
-        <strong>Promotion Increase (GC ${grade} → GC ${newGrade}):</strong><br>
-        Rate: <strong>${fmtPct(promoRate)}</strong><br>
-        Raw: <strong>${sar(promoRaw)}</strong><br>
-        Rounded (0/5): <strong>${sar(promoRounded)}</strong>
+        <strong>${t("promotion")} (GC ${grade} → GC ${newGrade}):</strong><br>
+        ${t("thType")}: <strong>${t("promotion")}</strong><br>
+        ${t("change")}: <strong>${fmtPct(promoRate)}</strong><br>
+        ${t("before")}: <strong>${sar(promoRaw)}</strong><br>
+        ${t("after")} (0/5): <strong>${sar(promoRounded)}</strong>
       </div>
     `
-    : `<div class="mt-2"><strong>Promotion:</strong> No</div>`;
+    : `<div class="mt-2"><strong>${t("promotion")}:</strong> ${t("no")}</div>`;
 
   show("incResult","success", `
     ${cappedMsg}
 
     <div class="mb-2">
-      <strong>Current grade:</strong> GC ${grade}<br>
-      <strong>Quarter before increases:</strong> ${qBeforeLabel}<br>
-      <strong>Quarter range (current grade):</strong> ${beforeRangeText}<br>
+      <strong>${t("gradeLabel")}:</strong> GC ${grade}<br>
+      <strong>${t("quarterBefore")}:</strong> ${qBeforeLabel}<br>
+      <strong>${t("quarterRange")} (GC ${grade}):</strong> ${beforeRangeText}<br>
     </div>
 
     <div class="mb-2">
-      <strong>Annual Increase:</strong><br>
-      Rating: <strong>${rating}</strong><br>
-      Rate used: <strong>${fmtPct(annualRate)}</strong><br>
-      Raw: <strong>${sar(annualRaw)}</strong><br>
-      Rounded (0/5): <strong>${sar(annualRounded)}</strong>
+      <strong>${t("annualIncrease")}:</strong><br>
+      ${t("thRating")}: <strong>${rating}</strong><br>
+      ${t("change")}: <strong>${fmtPct(annualRate)}</strong><br>
+      ${t("before")}: <strong>${sar(annualRaw)}</strong><br>
+      ${t("after")} (0/5): <strong>${sar(annualRounded)}</strong>
     </div>
 
     ${promoSection}
@@ -682,73 +1522,82 @@ document.getElementById("calcIncreaseBtn").onclick=()=>{
     <hr class="my-2">
 
     <div class="mb-2">
-      <strong>Total Increase (Rounded):</strong> ${sar(totalRounded)}<br>
-      <strong>Applied Increase (to Max of GC ${newGrade}):</strong> ${sar(appliedIncrease)}<br>
-      <strong>New Salary:</strong> ${sar(newSalary)}<br>
-      <strong>Remaining (One-time Lump Sum):</strong> ${sar(remainingLumpSum)}
+      <strong>${t("totalIncrease")}:</strong> ${sar(totalRounded)}<br>
+      <strong>${t("appliedIncrease")} (GC ${newGrade}):</strong> ${sar(appliedIncrease)}<br>
+      <strong>${t("newSalary")}:</strong> ${sar(newSalary)}<br>
+      <strong>${t("lumpSum")}:</strong> ${sar(remainingLumpSum)}
     </div>
 
     <div class="mt-2">
-      <strong>Quarter after increases (based on GC ${newGrade}):</strong> ${afterQuarterName} ${movedText}<br>
-      <strong>Quarter range (GC ${newGrade}):</strong> ${afterRangeText}
+      <strong>${t("quarterAfter")} (GC ${newGrade}):</strong> ${afterQuarterName} ${movedText}<br>
+      <strong>${t("quarterRange")} (GC ${newGrade}):</strong> ${afterRangeText}
     </div>
 
     <div class="mt-3">
-      <strong>Grade progress on GC ${newGrade} (Min → Max):</strong><br>
-      Before: <strong>${progressBefore.toFixed(2)}%</strong> &nbsp;|&nbsp;
-      After: <strong>${progressAfter.toFixed(2)}%</strong> &nbsp;|&nbsp;
-      Change: <strong>${progressDelta.toFixed(2)}%</strong>
+      <strong>${t("gradeProgress")} (GC ${newGrade}):</strong><br>
+      ${t("before")}: <strong>${progressBefore.toFixed(2)}%</strong> &nbsp;|&nbsp;
+      ${t("after")}: <strong>${progressAfter.toFixed(2)}%</strong> &nbsp;|&nbsp;
+      ${t("change")}: <strong>${progressDelta.toFixed(2)}%</strong>
     </div>
 
     <div class="mt-2">
-      <strong>Remaining to Max on GC ${newGrade}:</strong><br>
-      Before: <strong>${sar(remainingBefore)}</strong> &nbsp;|&nbsp;
-      After: <strong>${sar(remainingAfter)}</strong> &nbsp;|&nbsp;
-      Reduced by: <strong>${sar(remainingDelta)}</strong>
+      <strong>${t("remainingToMax")} (GC ${newGrade}):</strong><br>
+      ${t("before")}: <strong>${sar(remainingBefore)}</strong> &nbsp;|&nbsp;
+      ${t("after")}: <strong>${sar(remainingAfter)}</strong> &nbsp;|&nbsp;
+      ${t("reducedBy")}: <strong>${sar(remainingDelta)}</strong>
     </div>
   `);
-};
+
+  persistAllInputs();
+}
+
+document.getElementById("calcIncreaseBtn").onclick = runIncreaseCalc;
+document.getElementById("calcIncreaseBtnMobile").onclick = runIncreaseCalc;
+
+function resetIncrease(){
+  document.getElementById("incGrade").value = "";
+  setMoneyInput("incSalaryDisplay","incSalary", NaN);
+  document.getElementById("incRating").value = "";
+  document.getElementById("incPromotion").value = "no";
+  hide("incResult");
+  persistAllInputs();
+  toast(t("resetDone"));
+}
+document.getElementById("resetIncrease").onclick = resetIncrease;
+document.getElementById("resetIncreaseMobile").onclick = resetIncrease;
 
 /* =========================
    TAB 3: SAIP
-   ✅ Max enforced: if salary > max for selected grade -> stop
 ========================= */
-
-document.getElementById("saipCalcBtn").onclick=()=>{
+function runSaipCalc(){
   const gradeStr = document.getElementById("saipGrade").value;
   const gc = Number(gradeStr);
-  const salary = readNumber("saipSalary");
+  const salary = readNumberFromHidden("saipSalary");
   const rating = document.getElementById("saipRating").value;
   const isProtected = document.getElementById("saipProtected").value === "yes";
-  const companyFactor = readNumber("saipCompanyFactor");
+  const companyFactor = Number(document.getElementById("saipCompanyFactor").value);
 
   if(!gradeStr || !Number.isFinite(salary) || salary < 0 || !rating || !Number.isFinite(companyFactor) || companyFactor < 0){
-    return show("saipResult","warning","Enter valid inputs: grade, salary (>=0), rating, and company factor (>=0).");
+    return show("saipResult","warning", t("invalidInputs3"));
   }
 
   const band = salaryBands[String(gc)];
   if(!band){
-    return show("saipResult","danger","Invalid grade (must be 6–17).");
+    return show("saipResult","danger", t("invalidGrade"));
   }
 
-  // ✅ Max applied to SAIP too
   if(salary > band.max){
-    return show("saipResult","danger", `
-      <strong>Not allowed:</strong> Salary is above the grade maximum.<br>
-      GC ${gc} max is <strong>${sar(band.max)}</strong>, entered salary is <strong>${sar(salary)}</strong>.
-    `);
+    return show("saipResult","danger", t("salaryAboveMax", gc, band.max, salary));
   }
 
   const gradeFactor = getSaipGradeFactor(gc);
   const ratingFactor = getSaipRatingFactor(rating);
 
-  if(gradeFactor == null) return show("saipResult","danger","GradeFactor not defined (GC must be 6–17).");
-  if(ratingFactor == null) return show("saipResult","danger","Invalid rating.");
+  if(gradeFactor == null) return show("saipResult","danger", t("invalidGrade"));
+  if(ratingFactor == null) return show("saipResult","danger", t("chooseRating"));
 
-  // Base computed SAIP: Bonus = Salary × GradeFactor × RatingFactor × CompanyFactor
   const computed = salary * gradeFactor * ratingFactor * companyFactor;
 
-  // Protected floor (ONLY applies when rating = D and protected = yes)
   let floorFactor = null;
   let floorAmount = 0;
   let finalAmount = computed;
@@ -760,7 +1609,7 @@ document.getElementById("saipCalcBtn").onclick=()=>{
     } else {
       floorFactor = getProtectedFloorFactor(gc);
       if(floorFactor == null){
-        return show("saipResult","danger","Protected floor factor not defined for this grade.");
+        return show("saipResult","danger", t("invalidGrade"));
       }
       floorAmount = salary * floorFactor * companyFactor;
       if(computed < floorAmount){
@@ -773,38 +1622,38 @@ document.getElementById("saipCalcBtn").onclick=()=>{
   }
 
   const msgD = (rating === "D" && !isProtected)
-    ? `<div class="text-warning mb-2"><strong>Rating D:</strong> No SAIP unless Protected. Final bonus set to 0.</div>`
+    ? `<div class="text-warning mb-2"><strong>${t("ratingDNoProtected")}</strong></div>`
     : "";
 
   const msgFloor = (rating === "D" && isProtected)
     ? `<div class="mb-2">
-         <strong>Protected:</strong> Yes<br>
-         <strong>Protected Floor Factor:</strong> ${floorFactor}<br>
-         <strong>Protected Floor Amount:</strong> ${sar(floorAmount)}<br>
-         <strong>Floor Applied?</strong> ${floorApplied ? '<span class="text-success">Yes</span>' : '<span class="text-secondary">No</span>'}
+         <strong>${t("protectedTitle")}:</strong> ${t("yes")}<br>
+         <strong>${t("protectedFloorFactor")}:</strong> ${floorFactor}<br>
+         <strong>${t("protectedFloorAmount")}:</strong> ${sar(floorAmount)}<br>
+         <strong>${t("floorApplied")}</strong> ${floorApplied ? `<span class="text-success">${t("yes")}</span>` : `<span class="text-secondary">${t("no")}</span>`}
        </div>`
-    : `<div class="mb-2"><strong>Protected:</strong> ${isProtected ? "Yes" : "No"}</div>`;
+    : `<div class="mb-2"><strong>${t("protectedTitle")}:</strong> ${isProtected ? t("yes") : t("no")}</div>`;
 
   show("saipResult","success", `
     ${msgD}
 
     <div class="mb-2">
-      <strong>Formula</strong><br>
-      <strong>Bonus = Salary × GradeFactor × RatingFactor × CompanyFactor</strong>
+      <strong>${t("saipFormulaTitle")}</strong><br>
+      <strong>${t("saipFormula")}</strong>
     </div>
 
     <div class="mb-2">
-      <strong>Inputs</strong><br>
-      Grade (GC): <strong>${gc}</strong><br>
-      Salary: <strong>${sar(salary)}</strong><br>
-      Rating: <strong>${rating}</strong><br>
-      Company Factor: <strong>${companyFactor}</strong>
+      <strong>${t("inputsTitle")}</strong><br>
+      ${t("gradeLabel")}: <strong>${gc}</strong><br>
+      ${t("salaryLabel")}: <strong>${sar(salary)}</strong><br>
+      ${t("ratingLabelShort")}: <strong>${rating}</strong><br>
+      ${t("companyFactorLabel")}: <strong>${companyFactor}</strong>
     </div>
 
     <div class="mb-2">
-      <strong>Factors</strong><br>
-      GradeFactor: <strong>${gradeFactor}</strong><br>
-      RatingFactor: <strong>${ratingFactor}</strong>
+      <strong>${t("factorsTitle")}</strong><br>
+      ${t("saipGradeFactor")}: <strong>${gradeFactor}</strong><br>
+      ${t("saipRatingFactor")}: <strong>${ratingFactor}</strong>
     </div>
 
     ${msgFloor}
@@ -812,12 +1661,102 @@ document.getElementById("saipCalcBtn").onclick=()=>{
     <hr class="my-2">
 
     <div class="mb-2">
-      <strong>Bonus Breakdown: Salary(${salary}) * GradeFactor(${gradeFactor}) * RatingFactor(${ratingFactor}) * CompanyFactor(${companyFactor})</strong> 
-      <br/> <strong>Final Bonus:</strong> ${sar(finalAmount)} </div>
+      <strong>${t("breakdown")}:</strong>
+      ${sar(salary)} × ${gradeFactor} × ${ratingFactor} × ${companyFactor}
+      <br><strong>${t("finalBonus")}:</strong> ${sar(finalAmount)}
     </div>
-
   `);
-};
+
+  persistAllInputs();
+}
+
+document.getElementById("saipCalcBtn").onclick = runSaipCalc;
+document.getElementById("saipCalcBtnMobile").onclick = runSaipCalc;
+
+function resetSaip(){
+  document.getElementById("saipGrade").value = "";
+  setMoneyInput("saipSalaryDisplay","saipSalary", NaN);
+  document.getElementById("saipRating").value = "";
+  document.getElementById("saipProtected").value = "no";
+  document.getElementById("saipCompanyFactor").value = "1";
+  hide("saipResult");
+  persistAllInputs();
+  toast(t("resetDone"));
+}
+document.getElementById("resetSaip").onclick = resetSaip;
+document.getElementById("resetSaipMobile").onclick = resetSaip;
+
+/* =========================
+   Copy result (active tab) - bilingual-ready
+========================= */
+function stripHtmlToText(html){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  tmp.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+  tmp.querySelectorAll("li").forEach(li => li.textContent = `• ${li.textContent}`);
+  return tmp.textContent.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+async function copyActiveResult(){
+  const active = document.querySelector(".tab-pane.active.show");
+  if(!active) return;
+
+  let resultEl = null;
+  if(active.id === "checker") resultEl = document.getElementById("result");
+  if(active.id === "increase") resultEl = document.getElementById("incResult");
+  if(active.id === "saip") resultEl = document.getElementById("saipResult");
+
+  if(!resultEl || resultEl.classList.contains("d-none") || !resultEl.innerHTML.trim()){
+    toast(t("noResult"));
+    return;
+  }
+
+  const text = stripHtmlToText(resultEl.innerHTML);
+
+  try{
+    await navigator.clipboard.writeText(text);
+    toast(t("copied"));
+  }catch{
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.top = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    toast(t("copied"));
+  }
+}
+
+document.getElementById("copyActiveBtn").addEventListener("click", copyActiveResult);
+
+/* =========================
+   Enter submits active tab
+========================= */
+document.addEventListener("keydown", (e)=>{
+  if(e.key !== "Enter") return;
+
+  const active = document.querySelector(".tab-pane.active.show");
+  if(!active) return;
+
+  const tag = (e.target?.tagName || "").toLowerCase();
+  if(tag === "textarea") return;
+
+  if(active.id === "checker") runQuarterCheck();
+  if(active.id === "increase") runIncreaseCalc();
+  if(active.id === "saip") runSaipCalc();
+});
+
+/* =========================
+   RTL toggle
+========================= */
+document.getElementById("rtlToggle").addEventListener("change", (e)=>{
+  applyRTL(e.target.checked, true);
+});
+
+/* Persist on tab switch */
+document.getElementById("salaryTabs").addEventListener("shown.bs.tab", persistAllInputs);
 </script>
 </body>
 </html>
