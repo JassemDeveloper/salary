@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>أدوات الرواتب</title>
+  <title> Simple Salary Calculator  </title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -719,26 +719,26 @@ function persistAllInputs(){
 const I18N = {
   ar: {
     sar: "ريال",
-    appTitle: "أدوات الرواتب",
-    appSubtitle: "حساب سريع للربع، الزيادة السنوية، و SAIP.",
-    rtlLabel: "العربية / RTL",
+    appTitle: "حاسبة الراتب البسيطة",
+    appSubtitle: "حساب سريع في أي ربع راتبك، الزيادة السنوية، و SAIP.",
+    rtlLabel: "العربية",
     copyBtn: "نسخ النتيجة",
 
-    tabQuarter: "فحص الربع",
+    tabQuarter: "تحقق من راتبك",
     tabIncrease: "الزيادة السنوية",
     tabSaip: "SAIP",
 
-    t1Title: "فحص الربع للراتب",
-    t1Badge: "GC 6–17",
+    t1Title: "تحقق من راتبك في أي ربع",
+    t1Badge: "",
     t2Title: "حاسبة الزيادة السنوية",
-    t2Badge: "ترقية + سقف + مبلغ مقطوع",
+    t2Badge: "",
     t3Title: "حاسبة مكافأة SAIP",
-    t3Badge: "يدعم الحد الأدنى للمحمّي",
+    t3Badge: "",
 
-    gradeLabel: "الدرجة (GC)",
+    gradeLabel: " الدرجةالوظيفية (GC)",
     salaryLabel: "الراتب",
     currentSalaryLabel: "الراتب الحالي",
-    salaryPlaceholder: "مثال: 25,000",
+    salaryPlaceholder: "مثال: راتبك 25,000",
     salaryHelp: "أرقام فقط (ريال). سيتم تنسيق الرقم تلقائياً أثناء الكتابة.",
     companyFactorPlaceholder: "مثال: 1.0",
 
@@ -749,7 +749,7 @@ const I18N = {
     companyFactorLabel: "عامل الشركة",
 
     /* NEW */
-    rateYearLabel: "سنة النسبة",
+    rateYearLabel: "سنة الزيادة",
     rateYearCurrent: "السنة الحالية",
     rateYearPrevious: "السنة الماضية",
     rateYearUnsure: "مع بعض",
@@ -780,8 +780,8 @@ const I18N = {
     thQuarter4: "الربع 4",
     thType: "النوع",
 
-    chooseGrade: "اختر الدرجة",
-    chooseRating: "اختر التقييم",
+    chooseGrade: "اختر الدرجة الوظيفية",
+    chooseRating: "اختر التقييم السنوي",
     choose: "اختر",
     yes: "نعم",
     no: "لا",
@@ -835,9 +835,11 @@ const I18N = {
     belowMin: "أقل من الحد الأدنى",
     treatedQ1: "أقل من الحد الأدنى (يُعامل كربع أول لحساب النسبة)",
     unknownQuarter: "غير معروف",
-
-    quarterProgression: "تدرج الأرباع",
+    min:"الحد الأدنى",
+    max:"الحد الأعلى",
+    quarterProgression: " تدرج في أي ربع راتبك ",
     passed: "الأرباع المُنجزة",
+    gradeRange:"راتب الدرجة",
     current: "الربع الحالي",
     upcoming: "غير مُحقق بعد",
     none: "لا يوجد",
@@ -887,23 +889,23 @@ const I18N = {
 
   en: {
     sar: "SAR",
-    appTitle: "Salary Tools",
-    appSubtitle: "Fast calculators for quarter check, annual increase, and SAIP.",
-    rtlLabel: "Arabic / RTL",
+    appTitle: "Simple Salary Calculator",
+    appSubtitle: "Simple calculator To check which quarter is your salary, annual increase, and SAIP.",
+    rtlLabel: "Arabic",
     copyBtn: "Copy Result",
 
-    tabQuarter: "Quarter Check",
+    tabQuarter: "Check Salary Quarter",
     tabIncrease: "Annual Increase",
     tabSaip: "SAIP",
 
-    t1Title: "Salary Quarter Check",
-    t1Badge: "GC 6–17",
+    t1Title: "Check Your Salary Quarter",
+    t1Badge: "",
     t2Title: "Annual Increase Calculator",
-    t2Badge: "Promotion + Cap + Lump Sum",
+    t2Badge: "",
     t3Title: "SAIP Bonus Calculator",
-    t3Badge: "Supports Protected Minimum",
+    t3Badge: "",
 
-    gradeLabel: "Grade (GC)",
+    gradeLabel: "Grade Code (GC)",
     salaryLabel: "Salary",
     currentSalaryLabel: "Current Salary",
     salaryPlaceholder: "e.g., 25,000",
@@ -948,8 +950,8 @@ const I18N = {
     thQuarter4: "Q4",
     thType: "Type",
 
-    chooseGrade: "Select grade",
-    chooseRating: "Select rating",
+    chooseGrade: "Select grade code",
+    chooseRating: "Select your rating ",
     choose: "Select",
     yes: "Yes",
     no: "No",
@@ -1003,14 +1005,16 @@ const I18N = {
     belowMin: "Below minimum",
     treatedQ1: "Below minimum (treated as Q1 for rate selection)",
     unknownQuarter: "Unknown",
-
+  min:"minimum",
+  max:"maximum",
     quarterProgression: "Quarter progression",
     passed: "Completed quarters",
+    gradeRange: "Grade Salary Range",
     current: "Current quarter",
     upcoming: "Upcoming",
     none: "None",
     maxReached: "None — at maximum",
-    increaseFromMin: "Increase above minimum",
+    increaseFromMin: "Increase From minimum",
     pctOfRange: "of grade range",
     neededToMax: "Remaining to maximum",
 
@@ -1438,7 +1442,7 @@ function runQuarterCheck(){
 
   show("result","success", `
     <strong>${t("quarterProgression")}</strong><br><br>
-
+    <strong>✔ ${t("gradeRange")}:</strong>(<b>${t("min")}:</b>${band.min} - <b>${t("max")}:</b>${ band.max})<br><br>
     <strong>✔ ${t("passed")}:</strong><br>${passed}<br><br>
     <strong>📍 ${t("current")}:</strong><br>${currentBadge}<br><br>
     <strong>🎯 ${t("upcoming")}:</strong><br>${upcoming}<br><br>
