@@ -257,6 +257,12 @@
                   <select id="incRating" class="form-select" aria-required="true"></select>
                 </div>
 
+                <!-- NEW: Rate year choice -->
+                <div class="col-12 col-md-2">
+                  <label class="form-label" for="incRateYear" data-i18n="rateYearLabel">سنة النسبة</label>
+                  <select id="incRateYear" class="form-select" aria-required="true"></select>
+                </div>
+
                 <div class="col-12 col-md-2">
                   <label class="form-label" for="incPromotion" data-i18n="promotionLabel">ترقية؟</label>
                   <select id="incPromotion" class="form-select"></select>
@@ -548,11 +554,21 @@ const salaryBands = {
   17:{min:42405,max:87385,quarters:[{name:"Q1",min:42405,max:53650},{name:"Q2",min:53651,max:64895},{name:"Q3",min:64896,max:76140},{name:"Q4",min:76141,max:87385}]}
 };
 
-const increaseRates = {
-  "S":  { q1: 0.087, q2: 0.073, q3: 0.054, q4: 0.032 },
-  "E+": { q1: 0.073, q2: 0.062, q3: 0.046, q4: 0.036 },
-  "E":  { q1: 0.054, q2: 0.045, q3: 0.033, q4: 0.019 },
-  "M":  { q1: 0.033, q2: 0.027, q3: 0.016, q4: 0.009 }
+/* NEW: two-year rate sets + "unsure" option */
+const increaseRatesByYear = {
+  current: {
+    "S":  { q1: 0.087, q2: 0.073, q3: 0.054, q4: 0.032 },
+    "E+": { q1: 0.073, q2: 0.062, q3: 0.046, q4: 0.036 },
+    "E":  { q1: 0.054, q2: 0.045, q3: 0.033, q4: 0.019 },
+    "M":  { q1: 0.033, q2: 0.027, q3: 0.016, q4: 0.009 }
+  },
+  // عدّل هذه القيم إذا كانت نسب "السنة الماضية" مختلفة
+  previous: {
+    "S":  { q1: 0.072, q2: 0.063, q3: 0.053, q4: 0.039 },
+    "E+": { q1: 0.064, q2: 0.056, q3: 0.042, q4: 0.033 },
+    "E":  { q1: 0.058, q2: 0.049, q3: 0.035, q4: 0.022 },
+    "M":  { q1: 0.034, q2: 0.029, q3: 0.019, q4: 0.012 }
+  }
 };
 
 const promotionRates = { q1: 0.09, q2: 0.07, q3: 0.05, q4: 0.05 };
@@ -683,6 +699,7 @@ function persistAllInputs(){
       grade: document.getElementById("incGrade").value || "",
       salary: document.getElementById("incSalary").value || "",
       rating: document.getElementById("incRating").value || "",
+      rateYear: document.getElementById("incRateYear").value || "current",
       promotion: document.getElementById("incPromotion").value || "no"
     },
     saip: {
@@ -730,6 +747,12 @@ const I18N = {
     promotionLabel: "ترقية؟",
     protectedLabel: "محمي؟",
     companyFactorLabel: "عامل الشركة",
+
+    /* NEW */
+    rateYearLabel: "سنة النسبة",
+    rateYearCurrent: "السنة الحالية",
+    rateYearPrevious: "السنة الماضية",
+    rateYearUnsure: "مع بعض",
 
     checkBtn: "تحقق",
     calcBtn: "احسب",
@@ -892,6 +915,12 @@ const I18N = {
     promotionLabel: "Promotion?",
     protectedLabel: "Protected?",
     companyFactorLabel: "Company Factor",
+
+    /* NEW */
+    rateYearLabel: "Rate Year",
+    rateYearCurrent: "Current year",
+    rateYearPrevious: "Previous year",
+    rateYearUnsure: "Both",
 
     checkBtn: "Check",
     calcBtn: "Calculate",
@@ -1086,7 +1115,6 @@ function buildGradeSelect(selectId, from=6, to=17){
     sel.appendChild(opt);
   }
 
-  // restore
   if(current){
     sel.value = current;
     if(sel.value !== current) sel.selectedIndex = 0;
@@ -1139,6 +1167,32 @@ function buildYesNoSelect(selectId, defaultVal="no"){
   if(sel.value !== current) sel.value = defaultVal;
 }
 
+/* NEW: rate year select */
+function buildRateYearSelect(selectId){
+  const sel = document.getElementById(selectId);
+  const current = sel.value || "current";
+
+  sel.innerHTML = "";
+
+  const optCurrent = document.createElement("option");
+  optCurrent.value = "current";
+  optCurrent.textContent = t("rateYearCurrent");
+
+  const optPrevious = document.createElement("option");
+  optPrevious.value = "previous";
+  optPrevious.textContent = t("rateYearPrevious");
+
+  const optUnsure = document.createElement("option");
+  optUnsure.value = "unsure";
+  optUnsure.textContent = t("rateYearUnsure");
+
+  sel.appendChild(optCurrent);
+  sel.appendChild(optPrevious);
+  sel.appendChild(optUnsure);
+
+  sel.value = current;
+}
+
 function rebuildAllSelects(){
   buildGradeSelect("grade", 6, 17);
   buildGradeSelect("incGrade", 6, 17);
@@ -1146,6 +1200,8 @@ function rebuildAllSelects(){
 
   buildRatingSelect("incRating", false);
   buildRatingSelect("saipRating", true);
+
+  buildRateYearSelect("incRateYear");
 
   buildYesNoSelect("incPromotion", "no");
   buildYesNoSelect("saipProtected", "no");
@@ -1201,14 +1257,14 @@ wireMoneyInput("salaryDisplay","salary", persistAllInputs);
 wireMoneyInput("incSalaryDisplay","incSalary", persistAllInputs);
 wireMoneyInput("saipSalaryDisplay","saipSalary", persistAllInputs);
 
-["grade","incGrade","incRating","incPromotion","saipGrade","saipRating","saipProtected","saipCompanyFactor"].forEach(id=>{
+["grade","incGrade","incSalaryDisplay","incRating","incRateYear","incPromotion","saipGrade","saipRating","saipProtected","saipCompanyFactor"].forEach(id=>{
   const el = document.getElementById(id);
   if(!el) return;
   el.addEventListener("change", persistAllInputs);
   el.addEventListener("input", persistAllInputs);
 });
 
-// Salary table (static ranges, bilingual headers handled by i18n)
+/* Salary table (static ranges, bilingual headers handled by i18n) */
 Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
   const q = salaryBands[gc].quarters;
   document.getElementById("salaryTableBody").innerHTML += `
@@ -1222,11 +1278,14 @@ Object.keys(salaryBands).sort((a,b)=>+a-+b).forEach(gc=>{
   `;
 });
 
-// Annual increase table
+/* Annual increase table */
 function renderIncreaseTables(){
+  const yearKey = document.getElementById("incRateYear")?.value || "current";
+  const rates = increaseRatesByYear[yearKey === "previous" ? "previous" : "current"];
+
   document.getElementById("increaseTableBody").innerHTML = "";
   ["S","E+","E","M"].forEach(key=>{
-    const r = increaseRates[key];
+    const r = rates[key];
     document.getElementById("increaseTableBody").innerHTML += `
       <tr>
         <td>${key}</td>
@@ -1269,6 +1328,7 @@ function restoreFromState(){
     const n = Number(s.increase.salary);
     setMoneyInput("incSalaryDisplay","incSalary", Number.isFinite(n) ? n : NaN);
     if(s.increase.rating) document.getElementById("incRating").value = s.increase.rating;
+    if(s.increase.rateYear) document.getElementById("incRateYear").value = s.increase.rateYear;
     if(s.increase.promotion) document.getElementById("incPromotion").value = s.increase.promotion;
   }
 
@@ -1283,6 +1343,20 @@ function restoreFromState(){
 }
 
 /* =========================
+   Refresh visible results after language switch
+   (fix: results are generated HTML, not data-i18n)
+========================= */
+function refreshVisibleResultsAfterLangSwitch(){
+  const r1 = document.getElementById("result");
+  const r2 = document.getElementById("incResult");
+  const r3 = document.getElementById("saipResult");
+
+  if(r1 && !r1.classList.contains("d-none") && r1.innerHTML.trim()) runQuarterCheck();
+  if(r2 && !r2.classList.contains("d-none") && r2.innerHTML.trim()) runIncreaseCalc();
+  if(r3 && !r3.classList.contains("d-none") && r3.innerHTML.trim()) runSaipCalc();
+}
+
+/* =========================
    RTL + Language toggle
 ========================= */
 function applyRTL(isRTL, showToast=true){
@@ -1291,7 +1365,9 @@ function applyRTL(isRTL, showToast=true){
 
   applyTranslations();
   rebuildAllSelects();
+
   renderIncreaseTables();
+  refreshVisibleResultsAfterLangSwitch();
 
   if(showToast){
     toast(isRTL ? t("switchedAr") : t("switchedEn"));
@@ -1299,11 +1375,17 @@ function applyRTL(isRTL, showToast=true){
   persistAllInputs();
 }
 
-/* First run */
+/* First run (order matters) */
 applyTranslations();
 rebuildAllSelects();
-renderIncreaseTables();
 restoreFromState();
+renderIncreaseTables();
+
+/* re-render rates table when rate year changes */
+document.getElementById("incRateYear").addEventListener("change", ()=>{
+  renderIncreaseTables();
+  persistAllInputs();
+});
 
 /* =========================
    TAB 1: QUARTER CHECKER
@@ -1420,134 +1502,169 @@ function runIncreaseCalc(){
     beforeRangeText = `${sar(beforeRange.min)} – ${sar(beforeRange.max)}`;
   }
 
-  const annualRate = increaseRates[rating]?.[quarterKey];
-  if(annualRate == null){
-    return show("incResult","danger", t("rateNotFound"));
-  }
+  const yearChoice = document.getElementById("incRateYear").value || "current";
 
-  const annualRaw = salary * annualRate;
-  const annualRounded = roundTo5(annualRaw);
+  function calcWithRates(rates){
+    const annualRate = rates[rating]?.[quarterKey];
+    if(annualRate == null) return { ok:false, err:t("rateNotFound") };
 
-  let promoRate = 0, promoRaw = 0, promoRounded = 0;
-  let newGrade = grade;
-  let capBand = currentBand;
+    const annualRaw = salary * annualRate;
+    const annualRounded = roundTo5(annualRaw);
 
-  if(promotion === "yes"){
-    newGrade = grade + 1;
-    const nextBand = salaryBands[String(newGrade)];
-    if(!nextBand){
-      return show("incResult","danger", t("promoNotPossible", newGrade));
-    }
-    promoRate = promotionRates[quarterKey] ?? 0;
-    promoRaw = salary * promoRate;
-    promoRounded = roundTo5(promoRaw);
-    capBand = nextBand;
-  }
-
-  const totalRounded = promoRounded + annualRounded;
-
-  const headroomToMax = capBand.max - salary;
-  const appliedIncrease = Math.min(totalRounded, headroomToMax);
-  const newSalary = salary + appliedIncrease;
-  const remainingLumpSum = Math.max(0, totalRounded - appliedIncrease);
-
-  const qAfter = detectQuarter(String(newGrade), newSalary);
-
-  let afterRangeText = "—";
-  let afterQuarterName = t("unknownQuarter");
-  let movedText = "";
-
-  if(qAfter.ok && qAfter.quarterIndex >= 0){
-    afterQuarterName = qAfter.quarterName;
-    const afterBand = salaryBands[String(newGrade)];
-    const afterRange = afterBand.quarters[qAfter.quarterIndex];
-    afterRangeText = `${sar(afterRange.min)} – ${sar(afterRange.max)}`;
+    let promoRate = 0, promoRaw = 0, promoRounded = 0;
+    let newGrade = grade;
+    let capBand = currentBand;
 
     if(promotion === "yes"){
-      movedText = `<span class="text-primary">${t("reevalNewGrade", newGrade)}</span>`;
-    } else if(qBefore.ok && qBefore.quarterIndex >= 0) {
-      movedText = (qAfter.quarterIndex === qBefore.quarterIndex)
-        ? `<span class="text-success">${t("sameQuarter")}</span>`
-        : `<span class="text-primary">${t("movedQuarter")}</span>`;
-    } else {
-      movedText = `<span class="text-primary">${t("evaluatedAfter")}</span>`;
+      newGrade = grade + 1;
+      const nextBand = salaryBands[String(newGrade)];
+      if(!nextBand) return { ok:false, err:t("promoNotPossible", newGrade) };
+      promoRate = promotionRates[quarterKey] ?? 0;
+      promoRaw = salary * promoRate;
+      promoRounded = roundTo5(promoRaw);
+      capBand = nextBand;
+    }
+
+    const totalRounded = promoRounded + annualRounded;
+
+    const headroomToMax = capBand.max - salary;
+    const appliedIncrease = Math.min(totalRounded, headroomToMax);
+    const newSalary = salary + appliedIncrease;
+    const remainingLumpSum = Math.max(0, totalRounded - appliedIncrease);
+
+    return {
+      ok:true,
+      annualRate, annualRaw, annualRounded,
+      promoRate, promoRaw, promoRounded,
+      totalRounded, appliedIncrease, newSalary, remainingLumpSum,
+      newGrade, capBand
+    };
+  }
+
+  const ratesCurrent = increaseRatesByYear.current;
+  const ratesPrevious = increaseRatesByYear.previous;
+
+  const scenarios = [];
+  if(yearChoice === "unsure"){
+    scenarios.push({ key:"current", label:t("rateYearCurrent"), result: calcWithRates(ratesCurrent) });
+    scenarios.push({ key:"previous", label:t("rateYearPrevious"), result: calcWithRates(ratesPrevious) });
+  } else if(yearChoice === "previous"){
+    scenarios.push({ key:"previous", label:t("rateYearPrevious"), result: calcWithRates(ratesPrevious) });
+  } else {
+    scenarios.push({ key:"current", label:t("rateYearCurrent"), result: calcWithRates(ratesCurrent) });
+  }
+
+  for(const sc of scenarios){
+    if(!sc.result.ok){
+      return show("incResult","danger", sc.result.err);
     }
   }
 
-  const range = capBand.max - capBand.min;
+  const blocksHtml = scenarios.map(sc=>{
+    const r = sc.result;
 
-  const progressBefore = clamp01((salary - capBand.min) / range) * 100;
-  const progressAfter  = clamp01((newSalary - capBand.min) / range) * 100;
-  const progressDelta  = progressAfter - progressBefore;
+    const qAfter = detectQuarter(String(r.newGrade), r.newSalary);
 
-  const remainingBefore = Math.max(0, capBand.max - salary);
-  const remainingAfter  = Math.max(0, capBand.max - newSalary);
-  const remainingDelta  = remainingBefore - remainingAfter;
+    let afterRangeText = "—";
+    let afterQuarterName = t("unknownQuarter");
+    let movedText = "";
 
-  const cappedMsg = remainingLumpSum > 0
-    ? `<div class="mb-2 text-warning"><strong>${t("cappedMsg")}</strong></div>`
-    : "";
+    if(qAfter.ok && qAfter.quarterIndex >= 0){
+      afterQuarterName = qAfter.quarterName;
+      const afterBand = salaryBands[String(r.newGrade)];
+      const afterRange = afterBand.quarters[qAfter.quarterIndex];
+      afterRangeText = `${sar(afterRange.min)} – ${sar(afterRange.max)}`;
 
-  const promoSection = (promotion === "yes")
-    ? `
-      <div class="mt-2">
-        <strong>${t("promotion")} (GC ${grade} → GC ${newGrade}):</strong><br>
-        ${t("thType")}: <strong>${t("promotion")}</strong><br>
-        ${t("change")}: <strong>${fmtPct(promoRate)}</strong><br>
-        ${t("before")}: <strong>${sar(promoRaw)}</strong><br>
-        ${t("after")} (0/5): <strong>${sar(promoRounded)}</strong>
+      if(promotion === "yes"){
+        movedText = `<span class="text-primary">${t("reevalNewGrade", r.newGrade)}</span>`;
+      } else if(qBefore.ok && qBefore.quarterIndex >= 0) {
+        movedText = (qAfter.quarterIndex === qBefore.quarterIndex)
+          ? `<span class="text-success">${t("sameQuarter")}</span>`
+          : `<span class="text-primary">${t("movedQuarter")}</span>`;
+      } else {
+        movedText = `<span class="text-primary">${t("evaluatedAfter")}</span>`;
+      }
+    }
+
+    const range = r.capBand.max - r.capBand.min;
+    const progressBefore = clamp01((salary - r.capBand.min) / range) * 100;
+    const progressAfter  = clamp01((r.newSalary - r.capBand.min) / range) * 100;
+    const progressDelta  = progressAfter - progressBefore;
+
+    const remainingBefore = Math.max(0, r.capBand.max - salary);
+    const remainingAfter  = Math.max(0, r.capBand.max - r.newSalary);
+    const remainingDelta  = remainingBefore - remainingAfter;
+
+    const cappedMsg = r.remainingLumpSum > 0
+      ? `<div class="mb-2 text-warning"><strong>${t("cappedMsg")}</strong></div>`
+      : "";
+
+    const promoSection = (promotion === "yes")
+      ? `
+        <div class="mt-2">
+          <strong>${t("promotion")} (GC ${grade} → GC ${r.newGrade}):</strong><br>
+          ${t("thType")}: <strong>${t("promotion")}</strong><br>
+          ${t("change")}: <strong>${fmtPct(r.promoRate)}</strong><br>
+          ${t("before")}: <strong>${sar(r.promoRaw)}</strong><br>
+          ${t("after")} (0/5): <strong>${sar(r.promoRounded)}</strong>
+        </div>
+      `
+      : `<div class="mt-2"><strong>${t("promotion")}:</strong> ${t("no")}</div>`;
+
+    return `
+      <div class="p-3 border rounded-3 mb-3 bg-white">
+        <div class="fw-semibold mb-2">${t("rateYearLabel")}: ${sc.label}</div>
+
+        ${cappedMsg}
+
+        <div class="mb-2">
+          <strong>${t("gradeLabel")}:</strong> GC ${grade}<br>
+          <strong>${t("quarterBefore")}:</strong> ${qBeforeLabel}<br>
+          <strong>${t("quarterRange")} (GC ${grade}):</strong> ${beforeRangeText}<br>
+        </div>
+
+        <div class="mb-2">
+          <strong>${t("annualIncrease")}:</strong><br>
+          ${t("thRating")}: <strong>${rating}</strong><br>
+          ${t("change")}: <strong>${fmtPct(r.annualRate)}</strong><br>
+          ${t("before")}: <strong>${sar(r.annualRaw)}</strong><br>
+          ${t("after")} (0/5): <strong>${sar(r.annualRounded)}</strong>
+        </div>
+
+        ${promoSection}
+
+        <hr class="my-2">
+
+        <div class="mb-2">
+          <strong>${t("totalIncrease")}:</strong> ${sar(r.totalRounded)}<br>
+          <strong>${t("appliedIncrease")} (GC ${r.newGrade}):</strong> ${sar(r.appliedIncrease)}<br>
+          <strong>${t("newSalary")}:</strong> ${sar(r.newSalary)}<br>
+          <strong>${t("lumpSum")}:</strong> ${sar(r.remainingLumpSum)}
+        </div>
+
+        <div class="mt-2">
+          <strong>${t("quarterAfter")} (GC ${r.newGrade}):</strong> ${afterQuarterName} ${movedText}<br>
+          <strong>${t("quarterRange")} (GC ${r.newGrade}):</strong> ${afterRangeText}
+        </div>
+
+        <div class="mt-3">
+          <strong>${t("gradeProgress")} (GC ${r.newGrade}):</strong><br>
+          ${t("before")}: <strong>${progressBefore.toFixed(2)}%</strong> &nbsp;|&nbsp;
+          ${t("after")}: <strong>${progressAfter.toFixed(2)}%</strong> &nbsp;|&nbsp;
+          ${t("change")}: <strong>${progressDelta.toFixed(2)}%</strong>
+        </div>
+
+        <div class="mt-2">
+          <strong>${t("remainingToMax")} (GC ${r.newGrade}):</strong><br>
+          ${t("before")}: <strong>${sar(remainingBefore)}</strong> &nbsp;|&nbsp;
+          ${t("after")}: <strong>${sar(remainingAfter)}</strong> &nbsp;|&nbsp;
+          ${t("reducedBy")}: <strong>${sar(remainingDelta)}</strong>
+        </div>
       </div>
-    `
-    : `<div class="mt-2"><strong>${t("promotion")}:</strong> ${t("no")}</div>`;
+    `;
+  }).join("");
 
-  show("incResult","success", `
-    ${cappedMsg}
-
-    <div class="mb-2">
-      <strong>${t("gradeLabel")}:</strong> GC ${grade}<br>
-      <strong>${t("quarterBefore")}:</strong> ${qBeforeLabel}<br>
-      <strong>${t("quarterRange")} (GC ${grade}):</strong> ${beforeRangeText}<br>
-    </div>
-
-    <div class="mb-2">
-      <strong>${t("annualIncrease")}:</strong><br>
-      ${t("thRating")}: <strong>${rating}</strong><br>
-      ${t("change")}: <strong>${fmtPct(annualRate)}</strong><br>
-      ${t("before")}: <strong>${sar(annualRaw)}</strong><br>
-      ${t("after")} (0/5): <strong>${sar(annualRounded)}</strong>
-    </div>
-
-    ${promoSection}
-
-    <hr class="my-2">
-
-    <div class="mb-2">
-      <strong>${t("totalIncrease")}:</strong> ${sar(totalRounded)}<br>
-      <strong>${t("appliedIncrease")} (GC ${newGrade}):</strong> ${sar(appliedIncrease)}<br>
-      <strong>${t("newSalary")}:</strong> ${sar(newSalary)}<br>
-      <strong>${t("lumpSum")}:</strong> ${sar(remainingLumpSum)}
-    </div>
-
-    <div class="mt-2">
-      <strong>${t("quarterAfter")} (GC ${newGrade}):</strong> ${afterQuarterName} ${movedText}<br>
-      <strong>${t("quarterRange")} (GC ${newGrade}):</strong> ${afterRangeText}
-    </div>
-
-    <div class="mt-3">
-      <strong>${t("gradeProgress")} (GC ${newGrade}):</strong><br>
-      ${t("before")}: <strong>${progressBefore.toFixed(2)}%</strong> &nbsp;|&nbsp;
-      ${t("after")}: <strong>${progressAfter.toFixed(2)}%</strong> &nbsp;|&nbsp;
-      ${t("change")}: <strong>${progressDelta.toFixed(2)}%</strong>
-    </div>
-
-    <div class="mt-2">
-      <strong>${t("remainingToMax")} (GC ${newGrade}):</strong><br>
-      ${t("before")}: <strong>${sar(remainingBefore)}</strong> &nbsp;|&nbsp;
-      ${t("after")}: <strong>${sar(remainingAfter)}</strong> &nbsp;|&nbsp;
-      ${t("reducedBy")}: <strong>${sar(remainingDelta)}</strong>
-    </div>
-  `);
-
+  show("incResult","success", blocksHtml);
   persistAllInputs();
 }
 
@@ -1558,8 +1675,10 @@ function resetIncrease(){
   document.getElementById("incGrade").value = "";
   setMoneyInput("incSalaryDisplay","incSalary", NaN);
   document.getElementById("incRating").value = "";
+  document.getElementById("incRateYear").value = "current";
   document.getElementById("incPromotion").value = "no";
   hide("incResult");
+  renderIncreaseTables();
   persistAllInputs();
   toast(t("resetDone"));
 }
