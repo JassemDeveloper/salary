@@ -740,7 +740,7 @@ const I18N = {
     t2Badge: "",
     t3Title: "حاسبة مكافأة SAIP",
     t3Badge: "",
-
+    protectedNote:" توضيح بخصوص المعنى لمحمي - الموظف المتعين قبل / في 2013 شهر 7 يكون محمي من نقصان الحافز السنوي",
     gradeLabel: " الدرجةالوظيفية (GC)",
     salaryLabel: "الراتب",
     currentSalaryLabel: "الراتب الحالي",
@@ -921,7 +921,7 @@ const I18N = {
     t2Badge: "",
     t3Title: "SAIP Bonus Calculator",
     t3Badge: "",
-
+    protectedNote:"Clarification of the meaning of “Protected”:An employee who was hired before/on July 2013 is considered “Protected” and is safeguarded from a reduction in the annual incentive bonus.",
     gradeLabel: "Grade Code (GC)",
     salaryLabel: "Salary",
     currentSalaryLabel: "Current Salary",
@@ -1807,16 +1807,16 @@ function runSaipCalc(){
       ${t("gradeLabel")}: <strong>${gc}</strong><br>
       ${t("salaryLabel")}: <strong>${sar(salary)}</strong><br>
       ${t("ratingLabelShort")}: <strong>${rating}</strong><br>
-      ${t("companyFactorLabel")}: <strong>${companyFactor}</strong>
     </div>
 
     <div class="mb-2">
       <strong>${t("factorsTitle")}</strong><br>
+            ${t("companyFactorLabel")}: <strong>${companyFactor}</strong><br>
       ${t("saipGradeFactor")}: <strong>${gradeFactor}</strong><br>
       ${t("saipRatingFactor")}: <strong>${ratingFactor}</strong>
     </div>
 
-    ${msgFloor}
+    ${msgFloor}${t("protectedNote")}
 
     <hr class="my-2">
 
