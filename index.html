@@ -514,6 +514,12 @@
             </div><!-- /saip -->
           </div><!-- /tabs -->
         </div>
+
+        <!-- ✅ NEW: Disclaimer section (bilingual via i18n) -->
+        <div class="card-footer bg-white border-top">
+          <div class="small text-secondary" id="disclaimerText" data-i18n-html="disclaimerHtml"></div>
+        </div>
+
       </div>
 
       <p class="text-secondary small mt-3 mb-0" data-i18n="accessibilityNote">
@@ -802,6 +808,17 @@ const I18N = {
       إذا كان محمي والمبلغ المحسوب أقل من الحد الأدنى (بعد عامل الشركة) → يتم دفع الحد الأدنى.
     `,
 
+    /* ✅ NEW: Disclaimer (Arabic) */
+    disclaimerHtml: `
+      <div class="fw-semibold mb-1">إخلاء مسؤولية (لأغراض تعليمية فقط)</div>
+      <div>
+        هذه الحاسبة أُعدّت لأغراض تعليمية وتجريبية فقط، ولا تُعد مرجعًا رسميًا أو بديلاً عن السياسات والأنظمة المعتمدة لدى جهة العمل أو أي جهة مختصة.
+        قد تختلف النتائج الظاهرة عن النتائج الفعلية بسبب اختلاف المعادلات أو تحديثات الأنظمة أو إدخال بيانات غير دقيقة أو فروقات التقريب.
+        باستخدامك لهذه الحاسبة، فإنك تقرّ بأن الاعتماد على النتائج يكون على مسؤوليتك الشخصية، وأن مطوّر/مالك الحاسبة لا يتحمل أي مسؤولية عن أي خسائر أو قرارات أو التزامات تنتج عن استخدامها.
+        يُنصح بالتحقق من أي نتائج مع الموارد الرسمية أو قسم الموارد البشرية/الجهة المختصة قبل اتخاذ أي إجراء.
+      </div>
+    `,
+
     saipGradeRange: "نطاق الدرجة",
     saipGradeFactor: "عامل الدرجة",
     saipRatingFactor: "عامل التقييم",
@@ -972,6 +989,19 @@ const I18N = {
       If Protected and computed bonus is below the minimum (after company factor) → pay the minimum.
     `,
 
+    /* ✅ NEW: Disclaimer (English) */
+    disclaimerHtml: `
+      <div class="fw-semibold mb-1">Disclaimer (For Educational Purposes Only)</div>
+      <div>
+        This calculator is provided for educational and experimental purposes only and does not constitute official guidance
+        or a substitute for the approved policies and regulations of any employer or competent authority.
+        The displayed results may differ from actual outcomes due to formula variations, system updates, inaccurate inputs, or rounding differences.
+        By using this calculator, you acknowledge that reliance on the results is at your own risk, and the developer/owner assumes no liability
+        for any losses, decisions, or obligations arising from its use.
+        Please verify any results with official sources or the relevant HR/competent department before taking any action.
+      </div>
+    `,
+
     saipGradeRange: "Grade range",
     saipGradeFactor: "Grade factor",
     saipRatingFactor: "Rating factor",
@@ -1005,8 +1035,8 @@ const I18N = {
     belowMin: "Below minimum",
     treatedQ1: "Below minimum (treated as Q1 for rate selection)",
     unknownQuarter: "Unknown",
-  min:"minimum",
-  max:"maximum",
+    min:"minimum",
+    max:"maximum",
     quarterProgression: "Quarter progression",
     passed: "Completed quarters",
     gradeRange: "Grade Salary Range",
@@ -1082,6 +1112,14 @@ function applyTranslations(){
     const v = dict[key];
     if(v == null) return;
     el.setAttribute("placeholder", (typeof v === "function") ? v() : v);
+  });
+
+  /* ✅ NEW: allow HTML translations */
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-html");
+    const v = dict[key];
+    if(v == null) return;
+    el.innerHTML = (typeof v === "function") ? v() : v;
   });
 
   // Rules list
@@ -1348,7 +1386,6 @@ function restoreFromState(){
 
 /* =========================
    Refresh visible results after language switch
-   (fix: results are generated HTML, not data-i18n)
 ========================= */
 function refreshVisibleResultsAfterLangSwitch(){
   const r1 = document.getElementById("result");
@@ -1379,7 +1416,7 @@ function applyRTL(isRTL, showToast=true){
   persistAllInputs();
 }
 
-/* First run (order matters) */
+/* First run */
 applyTranslations();
 rebuildAllSelects();
 restoreFromState();
